@@ -1,0 +1,149 @@
+:root {
+  --white: #F2F2F2;
+  --dark: #01012a;
+  --color-accent: #06AD94;
+}
+
+body {
+  background-color: var(--dark);
+  color: var(--white);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex: 0 0 auto;
+  padding: 40px 0;
+  text-align: center;
+  font-size: 18px;
+  color: var(--white);
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.btn {
+  padding: 0.5rem 1.3rem;
+  font-size: 14px;
+  color: var(--white);
+  border-radius: 10px;
+  transition: transform 0.35s ease 0s, background 0.35s ease 0s;
+}
+
+.btn:active {
+  transform: scale(0.85);
+}
+
+.btn-primary {
+  color: var(--white);
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.btn-primary:hover {
+  background-color: #068572;
+  border-color: #068572;
+}
+.btn-primary:focus {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 0.25rem rgba(6, 173, 148, 0.5);
+}
+
+.btn-primary:disabled {
+  background: #6b6b6b;;
+  border-color: #6b6b6b;
+}
+
+.btn-primary:active {
+  background-color: #068572;
+  border-color: #068572;
+}
+
+/*form ========================================================================================================== */
+.form {
+  max-width: 600px;
+  margin: 120px auto 0;
+  padding: 30px 20px;
+  border: 2px solid var(--white);
+  border-radius: 10px;
+}
+
+.form-text {
+  color: red;
+}
+
+.form-control.invalid {
+  border-color: red;
+}
+
+.form__link {
+  text-decoration: none;
+}
+
+@media (min-width: 768px) {
+  btn {
+    padding: 0.6rem 1.8rem;
+    font-size: 16px;
+  }
+}
+
+/*cart */
+.btn_sum {
+  margin: 0 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.trash {
+  width: 16px;
+}
+
+.limit {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: red;
+}
+
+.good__img {
+  max-width: 100px;
+  margin-right: 1rem;
+}
+
+.count {
+  display: inline-block;
+  min-width: 40px;
+}
+
+
+/*alert*/
+.alerts__inner {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  width: 350px;
+  z-index: 999;
+}
