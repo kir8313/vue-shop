@@ -1,5 +1,6 @@
 <template>
-  <section class="goods card">
+  <app-loader v-if="isLoading"/>
+  <section v-else class="goods card">
     <div class="d-flex justify-content-between mb-4">
       <h2>Инвентарь</h2>
       <button class="btn btn-primary" @click="createGood">Создать</button>
@@ -16,7 +17,7 @@
       </div>
       <div
         v-if="filterGoods"
-        v-for="good in filterGoods"
+        v-for="good in partGoods"
         class="goods-table__row"
         :key="good.id"
       >
@@ -34,22 +35,39 @@
         v-if="isShowPopup"
         :categories="categories"
         :good=good
-        @close-popup="isShowPopup = false"
+        @close-popup="onClosePopup"
+      />
+      <app-prompt
+        v-if="prompt"
+        title="Действительно закрыть попап?"
+        @has-go="closePrompt"
       />
     </div>
+    <app-paginate
+      v-if="filterGoods"
+      :pages="pages.length"
+      @change-page="onChangePage"
+    />
   </section>
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useStore} from "vuex";
 import showCurrentCategory from "@/use/showCurrentCategory";
-import AdminPopupGoods from "@/components/AdminPopupGoods";
+import AdminPopupGoods from "@/components/admin/AdminPopupGoods";
+import AppPrompt from "@/components/AppPrompt";
+import AppPaginate from "@/components/AppPaginate";
+import chunk from "lodash.chunk";
+import AppLoader from "@/components/AppLoader";
+import usePagination from "@/use/usePagination";
 
+const isLoading = ref(true);
 const store = useStore();
 const categories = ref([]);
 const isShowPopup = ref(false);
 const good = ref({});
+const prompt = ref(false);
 
 const createGood = () => {
   good.value = {};
@@ -78,7 +96,37 @@ onMounted(async () => {
   await store.dispatch('getAllGoods');
   await store.dispatch('getCategories');
   categories.value = store.getters.categories;
+  isLoading.value = false;
 })
+
+const onClosePopup = (value) => {
+  if (value) {
+    prompt.value = true;
+  } else {
+    isShowPopup.value = false
+  }
+}
+
+const closePrompt = (value) => {
+  if (value) {
+    isShowPopup.value = false
+  }
+  prompt.value = false;
+}
+
+//paginate ============================================================================================================
+const PAGES_COUNT = 6
+
+const pages = computed(() => {
+    return chunk(filterGoods.value, PAGES_COUNT)
+})
+
+const partGoods = ref(null);
+
+computed(() => partGoods.value = pages.value[0])
+const onChangePage = (idx) => {
+  partGoods.value = pages.value[idx - 1];
+}
 </script>
 
 <style lang="scss">

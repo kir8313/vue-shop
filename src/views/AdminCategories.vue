@@ -22,31 +22,38 @@
           <button class="btn btn-info" :data-id="category.id" @click="changeCategory($event)">Изменить</button>
         </div>
       </div>
-      <admin-popup-categories
-        v-if="isShowPopup"
-        :categories="categories"
-        :category="category"
-        @close-popup="isShowPopup = false"
-      />
     </div>
+    <admin-popup-categories
+      v-if="isShowPopup"
+      :categories="categories"
+      :category="category"
+      @close-popup="onClosePopup"
+    />
+    <app-prompt
+      v-if="prompt"
+      title="Действительно закрыть попап?"
+      @has-go="closePrompt"
+    />
   </section>
 </template>
 
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
-import AdminPopupCategories from "@/components/AdminPopupCategories";
+import AdminPopupCategories from "@/components/admin/AdminPopupCategories";
+import AppPrompt from "@/components/AppPrompt";
 
 const store = useStore();
 const isShowPopup = ref(false);
 const category = ref({});
+const prompt = ref(false);
 
 const createCategory = () => {
   category.value = {};
   isShowPopup.value = true;
 }
 
-const changeCategory= (event) => {
+const changeCategory = (event) => {
   category.value = store.getters.categories.find(item => +item.id === +event.target.getAttribute('data-id'));
   isShowPopup.value = true;
 }
@@ -56,6 +63,22 @@ const categories = computed(() => store.getters.categories)
 onMounted(async () => {
   await store.dispatch('getCategories');
 })
+
+const onClosePopup = (value) => {
+  console.log('hasChanges', value)
+  if (value) {
+    prompt.value = true;
+  } else {
+    isShowPopup.value = false
+  }
+}
+
+const closePrompt = (value) => {
+  if (value) {
+    isShowPopup.value = false
+  }
+  prompt.value = false;
+}
 
 </script>
 

@@ -1,52 +1,64 @@
 <template>
   <section class="products">
     <div class="container">
-      <app-loader v-if="isLoading" />
-      <h2 v-if="!goods" >
+      <app-loader v-if="isLoading"/>
+      <h2 v-if="!goods">
         Товары не найдены
       </h2>
-    <div v-else class="products__inner">
-      <shop-filter
-        v-if="categories"
-        :categories="categories"
-        :goods="goods"
-        v-model="search"
-      />
-      <div v-if="goods.length" class="products__cards">
-        <shop-good
-          v-for="good in goods"
-          :key="good.id"
-          :good="good"
+      <div v-else class="products__inner">
+        <shop-filter
+          v-if="categories"
+          :categories="categories"
+          v-model="filters"
         />
+        <div v-if="goods.length" class="products__cards">
+          <shop-good
+            v-for="good in goods"
+            :key="good.id"
+            :good="good"
+          />
+        </div>
+        <h3 v-else class="text-center flex-grow-1">Нет товара по заданным фильтрам</h3>
       </div>
-      <h3 v-else class="text-center flex-grow-1">Нет товара по заданным фильтрам</h3>
-    </div>
     </div>
   </section>
 </template>
 
 <script setup>
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useStore} from "vuex"
-import ShopGood from "@/components/ShopGood";
-import ShopFilter from "@/components/ShopFilter";
+import ShopGood from "@/components/shop/ShopGood";
+import ShopFilter from "@/components/shop/ShopFilter";
 import AppLoader from "@/components/AppLoader";
 
 const store = useStore();
 const categories = ref({});
 const isLoading = ref(true);
+const stateGoods = ref(store.getters.goods)
 const goods = ref([]);
+const filters = ref({});
 
-const search = ref([]);
-watch(search, newGoods => {
-  goods.value = newGoods;
+watch([stateGoods, filters], ([newVal, {search, category}]) => {
+  if (newVal) {
+    let newGoods = store.getters.goods;
+
+    if (search) {
+      newGoods = newGoods.filter(good => good.title.toLowerCase().includes(search.toLowerCase()));
+    }
+    if (category) {
+      newGoods = newGoods.filter(good => good.category === category);
+    }
+
+    goods.value = newGoods;
+  }
 })
 
 onMounted(async () => {
+  await store.dispatch('getAllGoods');
+  stateGoods.value = store.getters.goods;
   await store.dispatch('getCategories');
   categories.value = store.getters.categories;
   isLoading.value = false;
-
 })
 </script>
 
@@ -134,6 +146,7 @@ onMounted(async () => {
 
       &-info {
         flex: 1;
+
         &__brand {
           font-size: 16px;
         }

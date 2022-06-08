@@ -3,7 +3,6 @@
     <form class="form" @submit.prevent="onSubmit">
       <h1>{{ Object.keys(props.category).length ? 'Изменить' : 'Создать' }} товар</h1>
       <div class="form-floating mb-3">
-
         <input
           class="form-control"
           :class="{'is-invalid': tError}"
@@ -29,7 +28,7 @@
         <label class="form-label" for="type">Тип категории</label>
         <small class="form-text" v-if="typeError">{{ typeError }}</small>
       </div>
-      <button class="btn btn-primary me-2" type="submit" :disabled="isSubmitting">{{ popupStatus }}</button>
+      <button class="btn btn-primary me-2" type="submit" :disabled="isSubmitting || !hasChanges">{{ popupStatus }}</button>
       <button
         v-if="Object.keys(category).length"
         class="btn btn-danger" type="button"
@@ -100,14 +99,6 @@ const {value: catType, errorMessage: typeError, handleBlur: typeBlur} = useField
     })
 )
 
-const popupStatus = computed(() => {
-  if (Object.keys(props.category).length) {
-    return 'Изменить';
-  } else {
-    return 'Создать';
-  }
-})
-
 const onSubmit = handleSubmit(async (values) => {
   if (Object.keys(props.category).length) {
     await store.dispatch('putCategory', {...values, id: props.category.id});
@@ -118,6 +109,15 @@ const onSubmit = handleSubmit(async (values) => {
   emit('closePopup');
 })
 
+
+const popupStatus = computed(() => {
+  if (Object.keys(props.category).length) {
+    return 'Изменить';
+  } else {
+    return 'Создать';
+  }
+})
+
 const deleteCategory = async () => {
   await store.dispatch('deleteCategory', props.category.id);
   emit('closePopup');
@@ -125,9 +125,14 @@ const deleteCategory = async () => {
 
 const closePopup = (event) => {
   if (event.target.closest('.form') === null) {
-    emit('closePopup')
+    emit('closePopup', hasChanges.value)
   }
 }
+
+const hasChanges = computed(() => {
+  return (props.category.title !== catTitle.value && catTitle.value) ||
+    (props.category.type !== catType.value && catType.value)
+})
 
 const title = computed(() => {
   return Object.keys(props.category).length ? 'Изменить' : 'Создать'
@@ -140,34 +145,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped lang="scss">
-.bg {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 999;
-  cursor: pointer;
-}
-
-form {
-  max-width: 600px;
-  margin: 120px auto 0;
-  background: white;
-  //text-align: left;
-  cursor: default;
-}
-
-.form-text {
-  color: red;
-}
-
-
-.form-control.is-invalid {
-  border-color: red;
-  border-width: 2px;
-}
-</style>

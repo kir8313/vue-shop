@@ -29,7 +29,7 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
-import CartGood from "@/components/CartGood";
+import CartGood from "@/components/cart/CartGood";
 import {watch} from "vue";
 
 const store = useStore();

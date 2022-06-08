@@ -1,7 +1,10 @@
 <template>
   <div class="bg" @click="closePopup($event)">
     <form class="form" @submit.prevent="onSubmit">
-      <h1>{{ Object.keys(props.good).length ? 'Изменить' : 'Создать' }} товар</h1>
+      <h1>{{ Object.keys(good).length ? 'Изменить' : 'Создать' }} товар</h1>
+      <div v-if="!iError && img" class="mb-3">
+        <img class="form__img" :src="img" alt="Не верный url для картинки">
+      </div>
       <div class="form-floating mb-3">
         <input
           class="form-control"
@@ -62,7 +65,7 @@
           </option>
         </select>
       </div>
-      <button class="btn btn-primary me-2" type="submit" :disabled="isSubmitting">{{ popupStatus }}</button>
+      <button class="btn btn-primary me-2" type="submit" :disabled="isSubmitting || !hasChanges">{{ popupStatus }}</button>
       <button
         v-if="Object.keys(good).length"
         class="btn btn-danger" type="button"
@@ -81,7 +84,6 @@ import {useField, useForm} from "vee-validate";
 import {computed, onMounted, ref, watch} from "vue";
 import {useRouter} from "vue-router";
 import * as yup from "yup";
-import {logout} from "@/utils/firebase.config";
 
 const emit = defineEmits(['closePopup']);
 const props = defineProps({
@@ -173,17 +175,24 @@ const deleteGood = async () => {
 
 const closePopup = (event) => {
   if (event.target.closest('.form') === null) {
-    emit('closePopup')
+    emit('closePopup', hasChanges.value)
   }
 }
 
-watch(count, val => {
-  if (val === "") {
+const hasChanges = computed(() => {
+  return props.good.title !== title.value ||
+    props.good.price !== price.value ||
+  props.good.count !== count.value ||
+  props.good.img !== img.value ||
+  ( props.good.category !== category.value &&
+  category.value !== props.categories[0].type )
+})
+
+watch([count, price], ([cVal, pVal]) => {
+  if (cVal === "") {
     count.value = 0;
   }
-})
-watch(price, val => {
-  if (val === "") {
+  if (pVal === "") {
     price.value = 0;
   }
 })
@@ -201,35 +210,8 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.bg {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 999;
-  cursor: pointer;
-}
 
-form {
-  max-width: 600px;
-  margin: 120px auto 0;
-  background: white;
-  text-align: left;
-  cursor: default;
-}
-
-.form-text {
-  color: red;
-}
-
-.form-label {
-  color: gray;
-}
-
-.form-control.is-invalid {
-  border-color: red;
-  border-width: 2px;
+.form__img {
+  max-width: 150px;
 }
 </style>

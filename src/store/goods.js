@@ -91,9 +91,7 @@ export default {
     async putGood({commit}, good) {
       try {
         const {data} = await axios.put(`${dbUrl}products/${good.id}`, good);
-        console.log('response', await data)
         if (!data) {
-          console.log('da, error')
           throw new Error('Ошибка с изменением товара')
         }
         commit('putGood', good);

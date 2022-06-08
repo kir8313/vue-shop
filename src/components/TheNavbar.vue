@@ -55,10 +55,6 @@ const isAdmin = computed(() => {
   return user.value && user.value.role === 'admin';
 })
 
-// onMounted(() => {
-//   console.log('user', user)
-// })
-
 </script>
 
 <style scoped lang="scss">
@@ -96,13 +92,13 @@ const isAdmin = computed(() => {
 
 .nav-link_basket {
   position: relative;
-  width: 50px;
+  width: 20px;
   transition: transform 0.4s ease 0s;
 
   span {
     position: absolute;
-    top: -5px;
-    right: 0;
+    top: -15px;
+    right: -15px;
     background: var(--color-accent);
     min-width: 22px;
     padding: 5px 8px;
