@@ -47,7 +47,7 @@ export default {
         await createUserWithEmailAndPassword(authFirebase, email, password);
         const uid = await dispatch('getUid');
 
-        await axios.put(`${firebaseUrl}users/${uid}.json`, { email, name, role: 'admin' })
+        await axios.put(`${firebaseUrl}users/${uid}.json`, { email, name, role: 'user' })
 
         localStorage.setItem('token', uid)
       } catch (e) {

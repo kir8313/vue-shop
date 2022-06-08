@@ -11,7 +11,7 @@ export default {
   },
   mutations: {
     changeGoods: (s, goods) => {
-      s.goods = goods.sort((a, b) => {
+      s.goods = goods.sort((a) => {
         if (a.count === 0) {
           return 1;
         }

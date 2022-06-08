@@ -1,50 +1,64 @@
 <template>
   <nav v-if="pages" aria-label="Page navigation example">
     <ul class="pagination justify-content-center m-0">
-      <li class="page-item"><a class="page-link" href="#"><span aria-hidden="true">&laquo;</span></a></li>
+      <li
+        class="page-item">
+        <button
+          class="page-link"
+          :disabled="+route.query.page <= 1"
+          @click="emit('update:modelValue', +route.query.page - 1)"
+        >
+          <span aria-hidden="true">&laquo;</span>
+        </button></li>
       <li
         v-for="idx in pages"
         class="page-item"
-        :class="{active: +route.query.page === idx}"
+        :class="{active: idx === modelValue}"
       >
-        <a
+        <button
           class="page-link"
-          :href="'?page=' + idx"
-          @click.prevent="onChangePage(idx)"
+          @click.prevent="emit('update:modelValue', idx);"
         >
           {{ idx }}
-        </a>
+        </button>
       </li>
-      <li class="page-item"><a class="page-link" href="#"><span aria-hidden="true">&raquo;</span></a></li>
+      <li class="page-item">
+        <button
+          class="page-link"
+          @click="emit('update:modelValue', +route.query.page + 1)"
+          :disabled="+route.query.page >= pages"
+        >
+          <span aria-hidden="true">&raquo;</span>
+        </button></li>
     </ul>
   </nav>
 </template>
 
 <script setup>
 import {useRoute, useRouter} from "vue-router";
-import {onMounted} from "vue";
+import {computed} from "vue";
 
 const props = defineProps({
-  pages: {
+  goodsLength: {
     type: Number,
     required: true,
-  }
+  },
+  size: {
+    type: Number,
+    required: true,
+  },
+  modelValue: Number
 })
-const emit = defineEmits(['changePage'])
+const emit = defineEmits(['update:modelValue',])
 
 const router = useRouter();
 const route = useRoute();
-
-const onChangePage = (idx) => {
-  router.replace({query: {page: idx}});
-  emit('changePage', idx);
-}
-
-onMounted(() => {
-  if (!route.query.page) {
-    router.replace({query: {page: 1}})
-  } else {
-    emit('changePage', route.query.page);
-  }
-})
+const pages = computed(() => Math.ceil(props.goodsLength / props.size));
 </script>
+
+<style scoped>
+.page-link:disabled {
+  background: rgba(128, 128, 128, 0.5);
+  cursor: not-allowed;
+}
+</style>

@@ -16,8 +16,8 @@
         <div>Действие</div>
       </div>
       <div
-        v-if="filterGoods"
-        v-for="good in partGoods"
+        v-if="goods"
+        v-for="good in goods"
         class="goods-table__row"
         :key="good.id"
       >
@@ -44,9 +44,10 @@
       />
     </div>
     <app-paginate
-      v-if="filterGoods"
-      :pages="pages.length"
-      @change-page="onChangePage"
+      v-if="goods"
+      :goods-length="allGoods.length"
+      :size="PAGES_COUNT"
+      v-model="page"
     />
   </section>
 </template>
@@ -60,14 +61,18 @@ import AppPrompt from "@/components/AppPrompt";
 import AppPaginate from "@/components/AppPaginate";
 import chunk from "lodash.chunk";
 import AppLoader from "@/components/AppLoader";
-import usePagination from "@/use/usePagination";
+import {useRoute, useRouter} from "vue-router";
 
 const isLoading = ref(true);
 const store = useStore();
+const router = useRouter();
+const route = useRoute();
 const categories = ref([]);
 const isShowPopup = ref(false);
 const good = ref({});
 const prompt = ref(false);
+const page = ref(route.query.page ? +route.query.page : 1);
+const PAGES_COUNT = 8;
 
 const createGood = () => {
   good.value = {};
@@ -78,19 +83,6 @@ const changeGood = (event) => {
   good.value = store.getters.goods.find(item => +item.id === +event.target.getAttribute('data-id'));
   isShowPopup.value = true;
 }
-
-const filterGoods = computed(() => {
-  if (store.getters.goods) {
-    return store.getters.goods.sort((a, b) => {
-      if (+a.id < +b.id) {
-        return -1
-      } else if (+b.id < +a.id) {
-        return 1
-      }
-    });
-  }
-  return null
-})
 
 onMounted(async () => {
   await store.dispatch('getAllGoods');
@@ -115,18 +107,19 @@ const closePrompt = (value) => {
 }
 
 //paginate ============================================================================================================
-const PAGES_COUNT = 6
+const allGoods = computed(() => store.getters.goods.sort((a, b) => {
+  if (+a.id < +b.id) {
+    return -1
+  } else if (+b.id < +a.id) {
+    return 1
+  }
+}));
+const changeRout = () => router.replace({query: {page: page.value}});
+onMounted(changeRout);
+watch(page, changeRout);
 
-const pages = computed(() => {
-    return chunk(filterGoods.value, PAGES_COUNT)
-})
+const goods = computed(() => chunk(allGoods.value, PAGES_COUNT)[page.value - 1])
 
-const partGoods = ref(null);
-
-computed(() => partGoods.value = pages.value[0])
-const onChangePage = (idx) => {
-  partGoods.value = pages.value[idx - 1];
-}
 </script>
 
 <style lang="scss">
