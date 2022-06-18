@@ -1,9 +1,12 @@
 <template>
-  <section>
+  <app-loader
+    v-if="isLoading"
+  />
+  <section v-else>
     <div class="container">
       <div class="basket">
         <h1>Корзина</h1>
-        <h3 v-if="!Object.keys(cartModel).length" class="text-center">В корзине пока ничего нет</h3>
+        <h2 v-if="!cartModel" class="text-center">В корзине пока ничего нет</h2>
         <div v-else>
           <div class="basket__inner text-center">
             <cart-good
@@ -17,9 +20,25 @@
           </div>
           <hr/>
           <p class="text-end"><strong>Всего: {{ sumPrices }} руб.</strong></p>
-          <p class="text-end">
+          <div
+            v-if="isAuth"
+            class="text-end"
+          >
             <button class="btn btn-primary">Оплатить</button>
-          </p>
+          </div>
+          <div v-else>
+            <h3 class="text-center mb-2">Для покупки авторизуйтесь</h3>
+            <auth
+              v-if="showForm === 'auth'"
+              :is-cart="true"
+              @onShowForm="showForm = 'register'"
+            />
+            <register
+              v-else-if="showForm === 'register'"
+              :is-cart="true"
+              @onShowForm="showForm = 'auth'"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -30,11 +49,17 @@
 import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
 import CartGood from "@/components/cart/CartGood";
-import {watch} from "vue";
+import Auth from "@/views/Auth";
+import Register from "@/views/Register";
+import AppLoader from "@/components/AppLoader";
+const showForm = ref('auth')
 
 const store = useStore();
-const cartModel = ref(store.getters['cart/cart'])
-const cartGoods = ref([])
+const cartModel = ref(store.getters['cart/cart']);
+const cartGoods = ref(null);
+const isAuth = computed(() => store.getters['auth/user']);
+const isLoading = ref(true);
+
 
 const updateCartModel = () => {
   cartModel.value = store.getters['cart/cart'];
@@ -42,16 +67,13 @@ const updateCartModel = () => {
 
 const deleteGood = (id) => {
   store.commit('cart/deleteGoodFromCart', id);
-  cartModel.value = Object.fromEntries(Object.entries(cartModel.value).filter(item => +item[0] !== +id));
-  cartGoods.value = cartGoods.value.filter(good => +good.id !== +id);
-  console.log('cart', store.getters['cart/cart'])
+  cartModel.value = store.getters['cart/cart'];
+  cartGoods.value = cartGoods.value.filter(good => good.id !== id);
 }
 
 const sumPrices = computed(() => {
-  if (Object.keys(cartGoods.value).length !== 0) {
-    return Object.keys(cartModel.value).reduce((accum, id) => {
-      return accum += cartGoods.value.find(good => +good.id === +id).price * cartModel.value[id];
-    }, 0)
+  if (cartGoods.value) {
+    return cartGoods.value.reduce((accum, good) => accum += good.price * cartModel.value[good.id], 0)
   } else {
     return 0
   }
@@ -59,8 +81,9 @@ const sumPrices = computed(() => {
 
 onMounted(async () => {
   if (cartModel.value) {
-    cartGoods.value = await store.dispatch('getFilterGoods', cartModel.value);
+    cartGoods.value = await store.dispatch('goods/getFilterGoods', cartModel.value);
   }
+  isLoading.value = false;
 })
 </script>
 
@@ -76,5 +99,9 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
+}
+
+.form {
+  margin: 0 auto;
 }
 </style>

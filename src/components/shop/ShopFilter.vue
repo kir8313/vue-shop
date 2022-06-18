@@ -51,7 +51,6 @@
 <script setup>
 import {onMounted, ref, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
-import {useStore} from "vuex";
 
 const emit = defineEmits(['update:modelValue']);
 const props = defineProps({
@@ -60,14 +59,13 @@ const props = defineProps({
     type: Object,
   }
 })
-const {dispatch, getters} = useStore();
+
 const route = useRoute();
 const router = useRouter();
 const search = ref('');
 const category = ref('all')
 const goods = ref([]);
 
-// console.log('category', category.value)
 watch([search, category], ([sh, cat]) => {
   const query = {};
   if (sh) {

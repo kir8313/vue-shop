@@ -110,7 +110,7 @@ const {value: title, errorMessage: tError, handleBlur: tBlur} = useField('title'
     .required('Введите название товара')
     .test('isUnique', 'Товар с таким названием уже существует', el => {
       if (el && Object.keys(props.good).length === 0) {
-        for (let good of store.getters.goods) {
+        for (let good of store.getters['goods/goods']) {
           if (good.title.toLowerCase() === el.toLowerCase()) {
             return false
           }
@@ -158,18 +158,18 @@ const popupStatus = computed(() => {
 
 const onSubmit = handleSubmit(async (values) => {
   if (Object.keys(props.good).length) {
-    await store.dispatch('putGood', {...values, id: props.good.id, "category": category.value});
+    console.log('values', values)
+    await store.dispatch('goods/putGood', {...values, id: props.good.id, "category": category.value});
   } else {
-    const id = String(store.getters.goods.length + 1);
-    const good = {...values, id, "category": category.value};
-    await store.dispatch('pushGood', good);
+    const good = {...values, "category": category.value};
+    await store.dispatch('goods/pushGood', good);
   }
   emit('closePopup');
 })
 
 const deleteGood = async () => {
   console.log('delete')
-  await store.dispatch('deleteGood', props.good.id);
+  await store.dispatch('goods/deleteGood', props.good.id);
   emit('closePopup');
 }
 

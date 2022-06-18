@@ -4,6 +4,7 @@ import {firebaseUrl} from "@/utils/firebaseUrl";
 import axios from "axios";
 
 export default {
+  namespaced: true,
   state: {
     user: null,
   },
@@ -23,14 +24,15 @@ export default {
 
     clearSession(state) {
       state.user = {};
-      localStorage.clear()
+      localStorage.removeItem('token');
     }
   },
   actions: {
     async login({dispatch, commit}, {email, password}) {
       try {
         const signUser = await signInWithEmailAndPassword(authFirebase, email, password);
-        localStorage.setItem('token', signUser.user.uid)
+        localStorage.setItem('token', signUser.user.uid);
+        dispatch('getUser')
       } catch (e) {
         commit('changeError', e)
         throw e
@@ -44,12 +46,13 @@ export default {
 
     async register({dispatch, commit}, {email, password, name}) {
       try {
-        await createUserWithEmailAndPassword(authFirebase, email, password);
-        const uid = await dispatch('getUid');
+        const res = await createUserWithEmailAndPassword(authFirebase, email, password);
+        const uid = await dispatch('getUid', null, {root: true});
 
         await axios.put(`${firebaseUrl}users/${uid}.json`, { email, name, role: 'user' })
 
-        localStorage.setItem('token', uid)
+        localStorage.setItem('token', uid);
+        dispatch('getUser');
       } catch (e) {
         commit('changeError', e);
         throw e;
@@ -57,7 +60,7 @@ export default {
     },
 
     async getUser({dispatch, commit}) {
-      const uid = await dispatch('getUid');
+      const uid = await dispatch('getUid', null, { root: true });
       const res = await fetch(`${firebaseUrl}users/${uid}.json`);
       const result = await res.json();
       await commit('updateUser', result);

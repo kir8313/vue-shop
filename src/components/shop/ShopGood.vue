@@ -72,6 +72,7 @@ const addToCart = () => {
 const deleteToCart = () => {
   isAddToCart.value = false;
   store.commit('cart/deleteGoodFromCart', props.good.id);
+  console.log('props.good.id', props.good.id)
   console.log('cart', store.getters['cart/cart']);
 }
 
@@ -94,10 +95,12 @@ const increment = () => {
 const isDecrement = computed(() => count.value <= 1);
 
 onMounted(async () => {
-  const getGoodFromCart = Object.entries(store.getters['cart/cart']).find(cartGood => +cartGood[0] === +props.good.id);
-  if (getGoodFromCart) {
-    count.value = getGoodFromCart[1];
-    isAddToCart.value = true;
+  if (store.getters['cart/cart']) {
+    const getGoodFromCart = Object.entries(store.getters['cart/cart']).find(cartGood => cartGood[0] === props.good.id);
+    if (getGoodFromCart) {
+      count.value = getGoodFromCart[1];
+      isAddToCart.value = true;
+    }
   }
 })
 </script>

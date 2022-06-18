@@ -18,6 +18,6 @@ import {useStore} from "vuex";
 const store = useStore()
 
 onMounted(async () => {
-  await store.dispatch('getUser');
+  await store.dispatch('auth/getUser');
 })
 </script>

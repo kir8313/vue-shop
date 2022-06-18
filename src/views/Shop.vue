@@ -34,13 +34,13 @@ import AppLoader from "@/components/AppLoader";
 const store = useStore();
 const categories = ref({});
 const isLoading = ref(true);
-const stateGoods = ref(store.getters.goods)
-const goods = ref([]);
+const stateGoods = ref(store.getters['goods/goods'])
+const goods = ref(stateGoods.value);
 const filters = ref({});
 
 watch([stateGoods, filters], ([newVal, {search, category}]) => {
   if (newVal) {
-    let newGoods = store.getters.goods;
+    let newGoods = store.getters['goods/goods'];
 
     if (search) {
       newGoods = newGoods.filter(good => good.title.toLowerCase().includes(search.toLowerCase()));
@@ -54,10 +54,15 @@ watch([stateGoods, filters], ([newVal, {search, category}]) => {
 })
 
 onMounted(async () => {
-  await store.dispatch('getAllGoods');
-  stateGoods.value = store.getters.goods;
-  await store.dispatch('getCategories');
-  categories.value = store.getters.categories;
+  if (!store.getters.goods) {
+    await store.dispatch('goods/getAllGoods');
+  }
+  if (!store.getters.categories) {
+    await store.dispatch('categories/getCategories');
+  }
+
+  stateGoods.value = store.getters['goods/goods'];
+  categories.value = store.getters['categories/categories'];
   isLoading.value = false;
 })
 </script>

@@ -7,7 +7,7 @@
       {{ title }}
     </div>
     <div>
-      <button v-if="isDecrement" class="btn btn-danger btn_sum" @click="$emit('deleteGood', +id)">
+      <button v-if="isDecrement" class="btn btn-danger btn_sum" @click="$emit('deleteGood', id)">
         <img class="trash" src="@/assets/trash-can.svg" alt="Удалить">
       </button>
       <button v-else class="btn btn-danger btn_sum" @click="decrement">

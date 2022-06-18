@@ -19,7 +19,7 @@
         </li>
         <li class="nav-item">
           <router-link to="/cart" class="nav-link nav-link_basket">
-            <img src="@/assets/basket.svg" alt="Корзина">
+            Корзина
             <span v-if="basketCount">{{ basketCount }}</span>
           </router-link>
         </li>
@@ -29,30 +29,27 @@
 </template>
 
 <script setup>
-import {computed, onMounted} from "vue";
+import {computed} from "vue";
 import {useStore} from 'vuex'
 import {useRouter} from "vue-router";
 
 const store = useStore();
 const router = useRouter();
+
 const basketCount = computed(() => {
-  if (Object.keys(store.getters['cart/cart'])) {
-    return Object.keys(store.getters['cart/cart']).length
+  if (store.getters['cart/cart']) {
+    return Object.keys(store.getters['cart/cart']).length;
   }
   return null
 })
 
 const logout = () => {
-  store.dispatch('logout');
-  router.push('/auth');
+  store.dispatch('auth/logout');
+  router.push('/');
 }
 
-const user = computed(() => {
-  return store.getters.user ? store.getters.user : null
-})
-
 const isAdmin = computed(() => {
-  return user.value && user.value.role === 'admin';
+  return store.getters['auth/user'] && store.getters['auth/user'].role === 'admin';
 })
 
 </script>
@@ -92,8 +89,6 @@ const isAdmin = computed(() => {
 
 .nav-link_basket {
   position: relative;
-  width: 20px;
-  transition: transform 0.4s ease 0s;
 
   span {
     position: absolute;
@@ -108,10 +103,6 @@ const isAdmin = computed(() => {
     text-align: center;
     line-height: 1;
   }
-}
-
-.nav-link_basket:hover {
-  transform: scale(1.15);
 }
 
 </style>

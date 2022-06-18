@@ -73,7 +73,7 @@ const {value: catTitle, errorMessage: tError, handleBlur: tBlur} = useField('tit
     .required('Введите название товара')
     .test('isUnique', 'Такое название уже существует', el => {
       if (el && Object.keys(category).length === 0) {
-        for (let cat of store.getters.categories) {
+        for (let cat of store.getters['categories/categories']) {
           if (cat.title.toLowerCase() === el.toLowerCase()) {
             return false
           }
@@ -89,7 +89,7 @@ const {value: catType, errorMessage: typeError, handleBlur: typeBlur} = useField
     .required('Введите тип товара')
     .test('isUnique', 'Такой тип уже существует', el => {
       if (el && Object.keys(category).length === 0) {
-        for (let cat of store.getters.categories) {
+        for (let cat of store.getters['categories/categories']) {
           if (cat.type.toLowerCase() === el.toLowerCase()) {
             return false
           }
@@ -101,10 +101,11 @@ const {value: catType, errorMessage: typeError, handleBlur: typeBlur} = useField
 
 const onSubmit = handleSubmit(async (values) => {
   if (Object.keys(props.category).length) {
-    await store.dispatch('putCategory', {...values, id: props.category.id});
+    console.log('props.category', props.category);
+    console.log('values', values)
+    await store.dispatch('categories/putCategory', {...values, id: props.category.id});
   } else {
-    const id = String(store.getters.categories.length + 1);
-    await store.dispatch('pushCategory', {...values, id});
+    await store.dispatch('categories/pushCategory', values);
   }
   emit('closePopup');
 })
@@ -119,7 +120,7 @@ const popupStatus = computed(() => {
 })
 
 const deleteCategory = async () => {
-  await store.dispatch('deleteCategory', props.category.id);
+  await store.dispatch('categories/deleteCategory', props.category.id);
   emit('closePopup');
 }
 

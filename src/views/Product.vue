@@ -1,52 +1,54 @@
 <template>
   <app-loader v-if="isLoading"/>
-  <h3
-    v-if="!good"
-    class="text-center text-white"
-  >
-    Товар не найден.
-  </h3>
-  <div class="card" v-else>
-    <h1 class="card__title">{{ good.title }}</h1>
-    <img class="card__img" :src="good.img"/>
-    <p class="card__category">Категория: <strong>{{ showCurrentCategory(good.category, categories) }}</strong></p>
-    <p class="card__price">{{ isHaveGood(good.count, good.price) }}</p>
-    <div
-      v-if="good.count !== 0"
-      class="products-bottom"
+  <div v-else>
+    <h3
+      v-if="!good"
+      class="text-center text-white"
     >
-      <button
-        v-if="!isAddToCart && good.selectedCount === undefined"
-        class="products-bottom__btn btn btn-primary"
-        @click="addToCart"
+      Товар не найден.
+    </h3>
+    <div class="card" v-else>
+      <h1 class="card__title">{{ good.title }}</h1>
+      <img class="card__img" :src="good.img"/>
+      <p class="card__category">Категория: <strong>{{ showCurrentCategory(good.category, categories) }}</strong></p>
+      <p class="card__price">{{ isHaveGood(good.count, good.price) }}</p>
+      <div
+        v-if="good.count !== 0"
+        class="products-bottom"
       >
-        В корзину
-      </button>
-      <div v-else class="text-center">
         <button
-          v-if="isDecrement"
-          class="btn btn-danger btn_sum"
-          @click="deleteToCart"
+          v-if="!isAddToCart && good.selectedCount === undefined"
+          class="products-bottom__btn btn btn-primary"
+          @click="addToCart"
         >
-          <img class="trash" src="@/assets/trash-can.svg" alt="Удалить">
+          В корзину
         </button>
-        <button v-else class="btn btn-danger btn_sum" @click="decrement">
-          -
-        </button>
-        <span class="count">{{ count }} шт.</span>
-        <button
-          :disabled="count >= good.count"
-          class="btn btn-primary btn_sum"
-          @click="increment"
-        >
-          +
-        </button>
-        <p
-          v-if="count >= good.count"
-          class="limit"
-        >
-          Максимальное количество товара: {{ good.count }}
-        </p>
+        <div v-else class="text-center">
+          <button
+            v-if="isDecrement"
+            class="btn btn-danger btn_sum"
+            @click="deleteToCart"
+          >
+            <img class="trash" src="@/assets/trash-can.svg" alt="Удалить">
+          </button>
+          <button v-else class="btn btn-danger btn_sum" @click="decrement">
+            -
+          </button>
+          <span class="count">{{ count }} шт.</span>
+          <button
+            :disabled="count >= good.count"
+            class="btn btn-primary btn_sum"
+            @click="increment"
+          >
+            +
+          </button>
+          <p
+            v-if="count >= good.count"
+            class="limit"
+          >
+            Максимальное количество товара: {{ good.count }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -60,6 +62,7 @@ import {useStore} from "vuex";
 import AppLoader from "@/components/AppLoader";
 import showCurrentCategory from "@/use/showCurrentCategory";
 import isHaveGood from "@/use/isHaveGood";
+import {logout} from "@/utils/firebase.config";
 
 const store = useStore();
 const route = useRoute();
@@ -83,6 +86,7 @@ const deleteToCart = () => {
 
 const decrement = () => {
   count.value--;
+  console.log('good.value.id', good.value)
   store.commit('cart/ChangeGoodCountInCart', {type: 'decrement', id: good.value.id});
   console.log('cart', store.getters['cart/cart']);
 };
@@ -98,20 +102,23 @@ const increment = () => {
 const isDecrement = computed(() => count.value <= 1);
 
 onMounted(async () => {
-  const goods = await store.dispatch('getGood', route.params.id);
-  good.value = goods.find(good => +good.id === +route.params.id);
-  const cart = store.getters['cart/cart'];
-  const getGoodFromCart = Object.entries(cart).find(cartGood => +cartGood[0] === +route.params.id);
+  if (store.getters.goods) {
+    good.value = store.getters['goods/goods'].find(good => good.id === route.params.id);
+  } else {
+    good.value = await store.dispatch('goods/getGood', route.params.id);
+  }
+
+  const getGoodFromCart = store.getters['cart/cart'] ? store.getters['cart/cart'][route.params.id] : null;
   if (getGoodFromCart) {
-    count.value = getGoodFromCart[1];
+    count.value = getGoodFromCart;
     isAddToCart.value = true;
   }
 
   if (!store.getters.categories) {
-    await store.dispatch('getCategories');
-    categories.value = store.getters.categories;
+    await store.dispatch('categories/getCategories');
+    categories.value = store.getters['categories/categories'];
   } else {
-    categories.value = store.getters.categories;
+    categories.value = store.getters['categories/categories'];
   }
   isLoading.value = false;
 })
@@ -125,5 +132,11 @@ onMounted(async () => {
   border-radius: 20px;
   color: var(--dark);
   text-align: center;
+}
+
+.card__img {
+  display: block;
+  margin: 0 auto;
+  max-width: 200px;
 }
 </style>

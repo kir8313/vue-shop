@@ -1,8 +1,7 @@
 <template>
   <form class="form" @submit.prevent="onSubmit">
-    <h1>Регистрация</h1>
-    <div class="mb-3">
-      <label class="form-label" for="email">Имя</label>
+    <h1 v-if="!isCart" class="text-black">Регистрация</h1>
+    <div class="form-floating mb-3">
       <input
         class="form-control"
         :class="{invalid: nError}"
@@ -11,10 +10,10 @@
         @blur="nBlur"
         placeholder="Имя"
       >
+      <label class="form-label" for="email">Имя</label>
       <small class="form-text" v-if="nError">{{ nError }}</small>
     </div>
-    <div class="mb-3">
-      <label class="form-label" for="email">Почта</label>
+    <div class="form-floating mb-3">
       <input
         class="form-control"
         :class="{invalid: eError}"
@@ -23,10 +22,10 @@
         @blur="eBlur"
         placeholder="Почта"
       >
+      <label class="form-label" for="email">Почта</label>
       <small class="form-text" v-if="eError">{{ eError }}</small>
     </div>
-    <div class="mb-3">
-      <label class="form-label" for="password">Пароль</label>
+    <div class="form-floating mb-3">
       <input
         class="form-control"
         :class="{invalid: pError}"
@@ -35,11 +34,12 @@
         @blur="pBlur"
         placeholder="Пароль"
       >
+      <label class="form-label" for="password">Пароль</label>
       <small class="form-text" v-if="pError">{{ pError }}</small>
     </div>
-    <div class="mb-3">
+    <div class="mb-3 text-black">
       Уже есть аккаунт?
-      <router-link to="/auth" class="form__link">Войти</router-link>
+      <a href="/auth" class="form__link" @click.prevent="onAuth">Войти</a>
     </div>
     <button class="btn btn-primary" type="submit" :disabled="isSubmitting || validSession">Создать</button>
     <p class="text-danger" v-if="validSession">
@@ -63,6 +63,20 @@ const timerCount = ref(TIMER);
 const router = useRouter();
 let SetTimer;
 const $error = inject('$error');
+
+const props = defineProps({
+  isCart: Boolean,
+})
+
+const emit = defineEmits(['onShowForm']);
+
+const onAuth = () => {
+  if (props.isCart) {
+    emit('onShowForm');
+  } else {
+    router.push('/auth')
+  }
+}
 
 const error = computed(() => {
   return store.getters.error;
@@ -111,23 +125,10 @@ watch(validSession, val => {
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await store.dispatch('register', values);
-    await router.push('/');
+    await store.dispatch('auth/register', values);
+    if (!props.isCart) {
+      await router.push('/');
+    }
   } catch (e) {}
 })
 </script>
-
-<style scoped>
-form {
-  max-width: 600px;
-  margin: 120px auto 0;
-}
-
-.form-text {
-  color: red;
-}
-
-.form-control.invalid {
-  border-color: red;
-}
-</style>

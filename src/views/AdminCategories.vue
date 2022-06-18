@@ -6,7 +6,6 @@
     </div>
     <div class="categories-table">
       <div class="categories-table__head">
-        <div>#</div>
         <div>Название</div>
         <div>Действие</div>
       </div>
@@ -16,7 +15,6 @@
         class="categories-table__row"
         :key="category.id"
       >
-        <div>{{ category.id }}</div>
         <div>{{ category.title }}</div>
         <div>
           <button class="btn btn-info" :data-id="category.id" @click="changeCategory($event)">Изменить</button>
@@ -54,28 +52,28 @@ const createCategory = () => {
 }
 
 const changeCategory = (event) => {
-  category.value = store.getters.categories.find(item => +item.id === +event.target.getAttribute('data-id'));
+  category.value = store.getters['categories/categories'].find(item => item.id === event.target.getAttribute('data-id'));
   isShowPopup.value = true;
 }
 
-const categories = computed(() => store.getters.categories)
+const categories = computed(() => store.getters['categories/categories'])
 
 onMounted(async () => {
-  await store.dispatch('getCategories');
+  await store.dispatch('categories/getCategories');
 })
 
 const onClosePopup = (value) => {
-  console.log('hasChanges', value)
   if (value) {
     prompt.value = true;
   } else {
-    isShowPopup.value = false
+    isShowPopup.value = false;
   }
 }
 
 const closePrompt = (value) => {
   if (value) {
-    isShowPopup.value = false
+    isShowPopup.value = false;
+
   }
   prompt.value = false;
 }
@@ -84,11 +82,12 @@ const closePrompt = (value) => {
 
 <style scoped lang="scss">
 .categories {
-  max-width: 600px;
+  max-width: 400px;
   margin: 0 auto;
   border-radius: 20px;
   padding: 30px 20px;
   color: var(--dark);
+  text-align: center;
 
   &-table {
     &__head {
@@ -98,7 +97,7 @@ const closePrompt = (value) => {
     &__head,
     &__row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 20px;
       align-items: center;
       margin-bottom: 20px;

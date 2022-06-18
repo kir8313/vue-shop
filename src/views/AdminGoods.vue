@@ -7,7 +7,6 @@
     </div>
     <div class="goods-table">
       <div class="goods-table__head">
-        <div>#</div>
         <div>Название</div>
         <div>Картинка</div>
         <div>Цена</div>
@@ -21,7 +20,6 @@
         class="goods-table__row"
         :key="good.id"
       >
-        <div>{{ good.id }}</div>
         <div>{{ good.title }}</div>
         <div><img :src="good.img" :alt="good.title"></div>
         <div>{{ good.price }} ₽</div>
@@ -62,6 +60,7 @@ import AppPaginate from "@/components/AppPaginate";
 import chunk from "lodash.chunk";
 import AppLoader from "@/components/AppLoader";
 import {useRoute, useRouter} from "vue-router";
+import axios from "axios";
 
 const isLoading = ref(true);
 const store = useStore();
@@ -72,7 +71,6 @@ const isShowPopup = ref(false);
 const good = ref({});
 const prompt = ref(false);
 const page = ref(route.query.page ? +route.query.page : 1);
-const PAGES_COUNT = 8;
 
 const createGood = () => {
   good.value = {};
@@ -80,14 +78,14 @@ const createGood = () => {
 }
 
 const changeGood = (event) => {
-  good.value = store.getters.goods.find(item => +item.id === +event.target.getAttribute('data-id'));
+  good.value = store.getters['goods/goods'].find(item => item.id === event.target.getAttribute('data-id'));
   isShowPopup.value = true;
 }
 
 onMounted(async () => {
-  await store.dispatch('getAllGoods');
-  await store.dispatch('getCategories');
-  categories.value = store.getters.categories;
+  await store.dispatch('goods/getAllGoods');
+  await store.dispatch('categories/getCategories');
+  categories.value = store.getters['categories/categories'];
   isLoading.value = false;
 })
 
@@ -107,24 +105,18 @@ const closePrompt = (value) => {
 }
 
 //paginate ============================================================================================================
-const allGoods = computed(() => store.getters.goods.sort((a, b) => {
-  if (+a.id < +b.id) {
-    return -1
-  } else if (+b.id < +a.id) {
-    return 1
-  }
-}));
+const PAGES_COUNT = 6;
+const allGoods = computed(() => store.getters['goods/goods']);
 const changeRout = () => router.replace({query: {page: page.value}});
 onMounted(changeRout);
 watch(page, changeRout);
 
 const goods = computed(() => chunk(allGoods.value, PAGES_COUNT)[page.value - 1])
-
 </script>
 
 <style lang="scss">
 .goods {
-  max-width: 1000px;
+  max-width: 800px;
   margin: 0 auto;
   border-radius: 20px;
   padding: 30px 20px;
@@ -138,7 +130,7 @@ const goods = computed(() => chunk(allGoods.value, PAGES_COUNT)[page.value - 1])
     &__head,
     &__row {
       display: grid;
-      grid-template-columns: 0.5fr repeat(6, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       align-items: center;
       gap: 20px 0;
       text-align: center;
