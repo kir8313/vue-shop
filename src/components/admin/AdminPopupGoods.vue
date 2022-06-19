@@ -1,6 +1,7 @@
 <template>
   <div class="bg" @click="closePopup($event)">
     <form class="form" @submit.prevent="onSubmit">
+      <button class="btn-close" @click="$emit('closePopup')"></button>
       <h1>{{ Object.keys(good).length ? 'Изменить' : 'Создать' }} товар</h1>
       <div v-if="!iError && img" class="mb-3">
         <img class="form__img" :src="img" alt="Не верный url для картинки">

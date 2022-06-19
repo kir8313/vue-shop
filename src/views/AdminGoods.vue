@@ -29,17 +29,19 @@
           <button class="btn btn-info" :data-id="good.id" @click="changeGood($event)">Изменить</button>
         </div>
       </div>
-      <admin-popup-goods
-        v-if="isShowPopup"
-        :categories="categories"
-        :good=good
-        @close-popup="onClosePopup"
-      />
-      <app-prompt
-        v-if="prompt"
-        title="Действительно закрыть попап?"
-        @has-go="closePrompt"
-      />
+      <teleport to="body">
+        <admin-popup-goods
+          v-if="isShowPopup"
+          :categories="categories"
+          :good=good
+          @close-popup="onClosePopup"
+        />
+        <app-prompt
+          v-if="prompt"
+          title="Действительно закрыть попап?"
+          @has-go="closePrompt"
+        />
+      </teleport>
     </div>
     <app-paginate
       v-if="goods"
@@ -93,13 +95,13 @@ const onClosePopup = (value) => {
   if (value) {
     prompt.value = true;
   } else {
-    isShowPopup.value = false
+    isShowPopup.value = false;
   }
 }
 
 const closePrompt = (value) => {
   if (value) {
-    isShowPopup.value = false
+    isShowPopup.value = false;
   }
   prompt.value = false;
 }

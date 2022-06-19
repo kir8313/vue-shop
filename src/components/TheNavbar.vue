@@ -23,6 +23,9 @@
             <span v-if="basketCount">{{ basketCount }}</span>
           </router-link>
         </li>
+        <li v-if="user" class="nav-item">
+          <a href="/auth" class="nav-link" @click.prevent="logout">Выйти</a>
+        </li>
       </ul>
     </div>
   </header>
@@ -35,6 +38,7 @@ import {useRouter} from "vue-router";
 
 const store = useStore();
 const router = useRouter();
+const user = computed(() => store.getters['auth/user']);
 
 const basketCount = computed(() => {
   if (store.getters['cart/cart']) {
@@ -49,9 +53,8 @@ const logout = () => {
 }
 
 const isAdmin = computed(() => {
-  return store.getters['auth/user'] && store.getters['auth/user'].role === 'admin';
+  return user.value && user.value.role === 'admin';
 })
-
 </script>
 
 <style scoped lang="scss">

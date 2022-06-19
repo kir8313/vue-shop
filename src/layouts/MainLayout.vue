@@ -18,6 +18,8 @@ import {useStore} from "vuex";
 const store = useStore()
 
 onMounted(async () => {
-  await store.dispatch('auth/getUser');
+  if (localStorage.getItem('token')) {
+    await store.dispatch('auth/getUser');
+  }
 })
 </script>

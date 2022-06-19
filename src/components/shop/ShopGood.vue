@@ -66,29 +66,24 @@ const isAddToCart = ref(false);
 const addToCart = () => {
   isAddToCart.value = true;
   store.commit('cart/addGoodInCart', props.good.id);
-  console.log('cart', store.getters['cart/cart'])
 }
 
 const deleteToCart = () => {
   isAddToCart.value = false;
   store.commit('cart/deleteGoodFromCart', props.good.id);
-  console.log('props.good.id', props.good.id)
-  console.log('cart', store.getters['cart/cart']);
 }
 
 const decrement = () => {
   if (count.value > 1) {
-    store.commit('cart/ChangeGoodCountInCart', {type: 'decrement', id: props.good.id});
+    store.commit('cart/changeGoodCountInCart', {type: 'decrement', id: props.good.id});
     count.value = store.getters['cart/cart'][props.good.id]
-    console.log('cart', store.getters['cart/cart'])
   }
 };
 
 const increment = () => {
   if (count.value < props.good.count) {
-    store.commit('cart/ChangeGoodCountInCart', {type: 'increment', id: props.good.id});
+    store.commit('cart/changeGoodCountInCart', {type: 'increment', id: props.good.id});
     count.value = store.getters['cart/cart'][props.good.id];
-    console.log('cart', store.getters['cart/cart'])
   }
 };
 

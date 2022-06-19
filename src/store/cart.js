@@ -1,17 +1,23 @@
+import axios from "axios";
+import {firebaseUrl} from "@/utils/firebaseUrl";
+
 export default {
   namespaced: true,
   state: {
-    cart: JSON.parse(localStorage.getItem('cart'))? JSON.parse(localStorage.getItem('cart')) : null,
+    cart: JSON.parse(localStorage.getItem('cart')) ? JSON.parse(localStorage.getItem('cart')) : null,
+    order: null,
   },
   getters: {
     cart: (s) => s.cart,
+    order: (s) => s.order,
   },
   mutations: {
     addGoodInCart(state, id) {
       state.cart = {...state.cart, [id]: 1};
       localStorage.setItem('cart', JSON.stringify(state.cart))
     },
-    ChangeGoodCountInCart(state, {type, id}) {
+
+    changeGoodCountInCart(state, {type, id}) {
       if (type === 'increment') {
         state.cart[id]++;
       } else if (type === 'decrement') {
@@ -29,5 +35,33 @@ export default {
         localStorage.removeItem('cart')
       }
     },
+
+    clearCartAndOrder (state) {
+      state.cart = state.order = null;
+      localStorage.removeItem('cart');
+    },
+
+    changeOrder(state, cartGoods) {
+      state.order = cartGoods.map((good) => {
+        const {title, price, id} = good;
+        const count = Object.entries(state.cart).find(item => item[0] === id)[1]
+        return {title, price, count};
+      });
+    },
+  },
+
+  actions: {
+    async pushOrder({commit}, order) {
+      try {
+        const {data} = await axios.post(firebaseUrl + 'orders.json', order);
+        if (!data) {
+          throw new Error('Ошибка с добавлением заказа!')
+        }
+        commit('clearCartAndOrder');
+      } catch (e) {
+        commit('changeError', e, {root: true});
+        throw e;
+      }
+    }
   },
 }

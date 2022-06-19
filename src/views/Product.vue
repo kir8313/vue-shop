@@ -87,7 +87,7 @@ const deleteToCart = () => {
 const decrement = () => {
   count.value--;
   console.log('good.value.id', good.value)
-  store.commit('cart/ChangeGoodCountInCart', {type: 'decrement', id: good.value.id});
+  store.commit('cart/changeGoodCountInCart', {type: 'decrement', id: good.value.id});
   console.log('cart', store.getters['cart/cart']);
 };
 

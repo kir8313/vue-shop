@@ -7,7 +7,7 @@
       {{ title }}
     </div>
     <div>
-      <button v-if="isDecrement" class="btn btn-danger btn_sum" @click="$emit('deleteGood', id)">
+      <button v-if="isDecrement" class="btn btn-danger btn_sum" @click="deleteGood">
         <img class="trash" src="@/assets/trash-can.svg" alt="Удалить">
       </button>
       <button v-else class="btn btn-danger btn_sum" @click="decrement">
@@ -47,24 +47,27 @@ const props = defineProps({
   },
 })
 const {id, img: imgSrc, count: allCount, title, price} = props.good;
-const emit = defineEmits(['update-model', 'deleteGood']);
+const emit = defineEmits(['deleteGood']);
 const store = useStore();
 
 const countGoods = ref(props.count);
 
 const decrement = () => {
   countGoods.value--;
-  store.commit('cart/ChangeGoodCountInCart', {type: 'decrement', id});
-  emit('update-model')
+  store.commit('cart/changeGoodCountInCart', {type: 'decrement', id});
 };
 
 const increment = () => {
   if (countGoods.value < allCount) {
     countGoods.value++;
-    store.commit('cart/ChangeGoodCountInCart', {type: 'increment', id});
-    emit('update-model');
+    store.commit('cart/changeGoodCountInCart', {type: 'increment', id});
   }
 };
+
+const deleteGood = () => {
+  store.commit('goods/deleteSelectedGoods', id);
+  store.commit('cart/deleteGoodFromCart', id);
+}
 
 const sum = computed(() => countGoods.value * price);
 

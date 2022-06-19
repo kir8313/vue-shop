@@ -1,7 +1,7 @@
 <template>
-  <section class="products">
+  <app-loader v-if="isLoading"/>
+  <section v-else class="products">
     <div class="container">
-      <app-loader v-if="isLoading"/>
       <h2 v-if="!goods">
         Товары не найдены
       </h2>

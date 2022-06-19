@@ -64,13 +64,12 @@ export default {
 
     async putCategory({commit}, category) {
       try {
-        const id = category.id;
-        delete category.id;
-        const {data} = await axios.put(`${firebaseUrl}categories/${id}.json`, category);
+        const {data} = await axios.put(`${firebaseUrl}categories/${category.id}.json`,
+          Object.fromEntries(Object.entries(category).filter(item => item[0] !== 'id')));
         if (!data) {
           throw new Error('Ошибка с изменением категории')
         }
-        commit('putCategory', {...category, id});
+        commit('putCategory', category);
       } catch (e) {
         commit('changeError', e);
         throw e;

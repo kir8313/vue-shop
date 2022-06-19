@@ -1,6 +1,7 @@
 <template>
   <div class="bg" @click="closePopup($event)">
     <form class="form" @submit.prevent="onSubmit">
+      <button class="btn-close" @click="$emit('closePopup')"></button>
       <h1>{{ Object.keys(props.category).length ? 'Изменить' : 'Создать' }} товар</h1>
       <div class="form-floating mb-3">
         <input

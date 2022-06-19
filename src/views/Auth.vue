@@ -71,7 +71,7 @@ const error = computed(() => {
 })
 
 watch(error, fbError => {
-  $error(alerts[fbError.code] || 'Неожиданная ошибка')
+  $error(alerts[fbError.code] || `Неожиданная ошибка (${fbError.code})`)
 })
 
 const {value: email, errorMessage: eError, handleBlur: eBlur} = useField('email',

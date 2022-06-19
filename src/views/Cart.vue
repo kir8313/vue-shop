@@ -10,12 +10,10 @@
         <div v-else>
           <div class="basket__inner text-center">
             <cart-good
-              v-for="good in cartGoods"
+              v-for="good in selectedGoods"
               :count="cartModel[good.id]"
               :key=good.id
               :good="good"
-              @delete-good="deleteGood"
-              @update-model="updateCartModel"
             />
           </div>
           <hr/>
@@ -24,7 +22,7 @@
             v-if="isAuth"
             class="text-end"
           >
-            <button class="btn btn-primary">Оплатить</button>
+            <button class="btn btn-primary" @click="onShowPopup">Оплатить</button>
           </div>
           <div v-else>
             <h3 class="text-center mb-2">Для покупки авторизуйтесь</h3>
@@ -42,6 +40,19 @@
         </div>
       </div>
     </div>
+    <teleport to="body">
+        <cart-order
+          v-if="isShowPopup"
+          :sum-prices="sumPrices"
+          :order="order"
+          @close-popup="onClosePopup"
+        />
+      <app-prompt
+        v-if="prompt"
+        title="Действительно закрыть оплату?"
+        @has-go="closePrompt"
+      />
+    </teleport>
   </section>
 </template>
 
@@ -52,28 +63,23 @@ import CartGood from "@/components/cart/CartGood";
 import Auth from "@/views/Auth";
 import Register from "@/views/Register";
 import AppLoader from "@/components/AppLoader";
+import AppPrompt from "@/components/AppPrompt";
+import CartOrder from "@/components/cart/CartOrder";
 const showForm = ref('auth')
 
 const store = useStore();
-const cartModel = ref(store.getters['cart/cart']);
-const cartGoods = ref(null);
+const cartModel = computed(() => store.getters['cart/cart']);
+const selectedGoods = computed(() => store.getters['goods/selectedGoods']);
 const isAuth = computed(() => store.getters['auth/user']);
 const isLoading = ref(true);
 
-
-const updateCartModel = () => {
-  cartModel.value = store.getters['cart/cart'];
-}
-
-const deleteGood = (id) => {
-  store.commit('cart/deleteGoodFromCart', id);
-  cartModel.value = store.getters['cart/cart'];
-  cartGoods.value = cartGoods.value.filter(good => good.id !== id);
-}
+const isShowPopup = ref(false);
+const prompt = ref(false);
+const order = computed(() => store.getters['cart/order']);
 
 const sumPrices = computed(() => {
-  if (cartGoods.value) {
-    return cartGoods.value.reduce((accum, good) => accum += good.price * cartModel.value[good.id], 0)
+  if (selectedGoods.value && cartModel.value) {
+    return selectedGoods.value.reduce((accum, good) => accum += good.price * cartModel.value[good.id], 0)
   } else {
     return 0
   }
@@ -81,10 +87,31 @@ const sumPrices = computed(() => {
 
 onMounted(async () => {
   if (cartModel.value) {
-    cartGoods.value = await store.dispatch('goods/getFilterGoods', cartModel.value);
+    await store.dispatch('goods/getFilterGoods', cartModel.value);
   }
   isLoading.value = false;
 })
+
+
+const onShowPopup = () => {
+  store.commit('cart/changeOrder', selectedGoods.value);
+  isShowPopup.value = true;
+}
+
+const onClosePopup = (value) => {
+  if (!value) {
+    prompt.value = true;
+  } else {
+    isShowPopup.value = false;
+  }
+}
+
+const closePrompt = (value) => {
+  if (value) {
+    isShowPopup.value = false
+  }
+  prompt.value = false;
+}
 </script>
 
 <style lang="scss">
@@ -100,6 +127,10 @@ onMounted(async () => {
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
 }
+
+</style>
+
+<style scoped>
 
 .form {
   margin: 0 auto;

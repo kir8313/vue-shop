@@ -21,17 +21,19 @@
         </div>
       </div>
     </div>
-    <admin-popup-categories
-      v-if="isShowPopup"
-      :categories="categories"
-      :category="category"
-      @close-popup="onClosePopup"
-    />
-    <app-prompt
-      v-if="prompt"
-      title="Действительно закрыть попап?"
-      @has-go="closePrompt"
-    />
+    <teleport to="body">
+      <admin-popup-categories
+        v-if="isShowPopup"
+        :categories="categories"
+        :category="category"
+        @close-popup="onClosePopup"
+      />
+      <app-prompt
+        v-if="prompt"
+        title="Действительно закрыть попап?"
+        @has-go="closePrompt"
+      />
+    </teleport>
   </section>
 </template>
 

@@ -6,10 +6,12 @@ export default {
   namespaced: true,
   state: {
     goods: null,
+    selectedGoods: null,
   },
 
   getters: {
     goods: (s) => s.goods,
+    selectedGoods: (s) => s.selectedGoods,
   },
   mutations: {
     changeGoods: (s, goods) => {
@@ -34,6 +36,15 @@ export default {
       s.goods = s.goods.filter(good => good.id !== id);
       console.log('s.goods', s.goods)
     },
+
+    changeSelectedGoods(s, goods) {
+      s.selectedGoods = goods;
+    },
+
+    deleteSelectedGoods(s, id) {
+      console.log('s.selectedGoods', s.selectedGoods)
+      s.selectedGoods = s.selectedGoods.filter(good => good.id !== id);
+    }
   },
   actions: {
     async getAllGoods({commit}) {
@@ -70,13 +81,13 @@ export default {
             throw new Error('Ошибка с фильтром товаров')
           }
           const goods = Object.keys(data).map(key => ({...data[key], id: key}))
-          return filterGoods(urls, goods);
+          commit('changeSelectedGoods', filterGoods(urls, goods));
         } catch (e) {
           commit('changeError', e);
           throw e;
         }
       } else {
-        return filterGoods(urls, getters.goods);
+        commit('changeSelectedGoods', filterGoods(urls, getters.goods));
       }
 
       function filterGoods(urlKeys, goods) {
@@ -112,13 +123,12 @@ export default {
 
     async putGood({commit}, good) {
       try {
-        const id = good.id;
-        delete good.id;
-        const {data} = await axios.put(`${firebaseUrl}products/${id}.json`, good);
+        const {data} = await axios.put(`${firebaseUrl}products/${id}.json`,
+          Object.fromEntries(Object.entries(good).filter(item => item[0] !== 'id')));
         if (!data) {
           throw new Error('Ошибка с изменением товара')
         }
-        commit('putGood', {...good, id});
+        commit('putGood', good);
       } catch (e) {
         commit('changeError', e);
         throw e;

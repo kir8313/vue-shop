@@ -5,5 +5,6 @@ export default {
   'auth/wrong-password': "Неверный пароль.",
   'auth/user-not-found': "Пользователь с таким email не найден",
   'auth/too-many-requests': "Много попыток входа",
-  'auth/email-already-in-use': 'Пользователь с таким email уже зарегистрирован'
+  'auth/email-already-in-use': 'Пользователь с таким email уже зарегистрирован',
+  'ERR_NETWORK': 'Ошибка с базой данных'
 }
