@@ -57,10 +57,10 @@ import {computed, onMounted, ref, watch} from "vue";
 import {useStore} from "vuex";
 import showCurrentCategory from "@/use/showCurrentCategory";
 import AdminPopupGoods from "@/components/admin/AdminPopupGoods";
-import AppPrompt from "@/components/AppPrompt";
-import AppPaginate from "@/components/AppPaginate";
+import AppPrompt from "@/components/app/AppPrompt";
+import AppPaginate from "@/components/app/AppPaginate";
 import chunk from "lodash.chunk";
-import AppLoader from "@/components/AppLoader";
+import AppLoader from "@/components/app/AppLoader";
 import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
 

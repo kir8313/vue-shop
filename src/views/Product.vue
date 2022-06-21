@@ -59,7 +59,7 @@
 import {onMounted, ref, computed} from "vue";
 import {useRoute} from "vue-router";
 import {useStore} from "vuex";
-import AppLoader from "@/components/AppLoader";
+import AppLoader from "@/components/app/AppLoader";
 import showCurrentCategory from "@/use/showCurrentCategory";
 import isHaveGood from "@/use/isHaveGood";
 import {logout} from "@/utils/firebase.config";

@@ -41,7 +41,7 @@
 import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
 import AdminPopupCategories from "@/components/admin/AdminPopupCategories";
-import AppPrompt from "@/components/AppPrompt";
+import AppPrompt from "@/components/app/AppPrompt";
 
 const store = useStore();
 const isShowPopup = ref(false);

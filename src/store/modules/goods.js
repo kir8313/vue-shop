@@ -30,6 +30,10 @@ export default {
       const idx = s.goods.findIndex(item => item.id === good.id);
       s.goods[idx] = good;
     },
+    updateGoodCount(state, {id, count}) {
+      const goods = state.goods.find(g => g.id === id)
+      goods.count = count
+    },
 
     deleteGood(s, id) {
       s.goods = s.goods.filter(good => good.id !== id);
@@ -77,8 +81,8 @@ export default {
           if (!data) {
             throw new Error('Ошибка с фильтром товаров')
           }
-          const goods = Object.keys(data).map(key => ({...data[key], id: key}))
-          commit('changeSelectedGoods', filterGoods(urls, goods));
+          commit('changeGoods', data)
+          commit('changeSelectedGoods', filterGoods(urls, transform(data)));
         } catch (e) {
           commit('changeError', e, {root: true});
           throw e;

@@ -1,6 +1,7 @@
 import {authFirebase, logout} from "@/utils/firebase.config";
 import {signInWithEmailAndPassword, createUserWithEmailAndPassword} from 'firebase/auth';
 import baseAxios from "@/axios/db";
+import axios from "axios";
 
 const TOKEN_KEY = 'jwt-token';
 const REFRESH_KEY = 'jwt-refresh-token';
@@ -52,7 +53,7 @@ export default {
       localStorage.removeItem(USER_KEY);
     },
     changeToken(state, {refreshToken, idToken, expiresIn = '3600'}) {
-      const expiresDate = new Date(new Date().getTime() + Number(expiresIn) * 1000);
+      const expiresDate = new Date(new Date().getTime() + +expiresIn * 1000);
       state.token = idToken;
       state.refreshToken = refreshToken;
       state.expiresDate = expiresDate;
@@ -65,8 +66,8 @@ export default {
     async login({dispatch, commit}, {email, password}) {
       try {
         const {_tokenResponse} = await signInWithEmailAndPassword(authFirebase, email, password);
-        dispatch('getUser', _tokenResponse.localId);
         commit('changeToken', _tokenResponse);
+        dispatch('getUser', _tokenResponse.localId);
       } catch (e) {
         commit('changeError', e, {root: true});
         throw e;
@@ -114,6 +115,21 @@ export default {
       } catch (e) {
         commit('changeError', e, {root: true});
         throw e;
+      }
+    },
+    async refresh({ state, commit }) {
+      try {
+        const {data} = await axios.post(`https://securetoken.googleapis.com/v1/token?key=${process.env.VUE_APP_API_KEY}`, {
+          grant_type: 'refresh_token',
+          refresh_token: state.refreshToken
+        })
+        commit('changeToken', {
+          refreshToken: data.refresh_token,
+          idToken: data.id_token,
+          expiresIn: data.expires_in
+        })
+      } catch (e) {
+        console.log('Error:', e.message)
       }
     }
   }

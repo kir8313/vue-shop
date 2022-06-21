@@ -40,22 +40,22 @@ const routes = [
   },
   {
     path: '/admin',
-    component: () => import('@/views/Admin.vue'),
+    component: () => import('@/views/admin/Admin.vue'),
     name: "Admin",
     redirect: {name: 'AdminProducts'},
     meta: {
-      layout: 'main',
+      layout: 'admin',
       admin: true,
     },
     children: [
       {
         path: 'goods',
         name: 'AdminProducts',
-        component: () => import('@/views/AdminGoods.vue'),
+        component: () => import('@/views/admin/AdminGoods.vue'),
       },
       {
         path: 'categories',
-        component: () => import('@/views/AdminCategories.vue'),
+        component: () => import('@/views/admin/AdminCategories.vue'),
       },
     ]
   },
@@ -67,17 +67,26 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from,) => {
-  const isAuth = to.meta.auth;
-  const isAdmin = to.meta.admin;
+router.beforeEach((to, from, next) => {
+  const isRequireAuth = to.meta.auth;
+  const isRequireAdmin = to.meta.admin;
 
-  if (isAdmin) {
-    setTimeout(() => {
-      if (!store.getters['auth/isAdmin']) {
-        return router.push('/auth?message=admin');
-      }
-    }, 500)
+  if (isRequireAdmin) {
+    if (!store.getters['auth/isAdmin']) {
+      return next('/auth?message=admin');
+    } else {
+      return next();
+    }
   }
+
+  if (isRequireAuth) {
+    if (!store.getters['auth/isAuthenticated']) {
+      return router.push('/auth?message=auth');
+    } else {
+      return next();
+    }
+  }
+  next();
 })
 
 export default router

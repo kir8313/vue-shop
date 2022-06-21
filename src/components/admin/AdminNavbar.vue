@@ -1,19 +1,16 @@
 <template>
   <header class="navbar">
     <div class="container">
-      <span class="navbar__logo">ShopArz</span>
+      <span class="navbar__logo">Админка</span>
       <ul class="nav">
-        <li v-if="store.getters['auth/isAuthenticated']" class="nav-item">{{ store.getters['auth/user'].name }}</li>
+        <li class="nav-item">Привет <b>{{ user.name }}!</b></li>
         <li class="nav-item">
-          <router-link to="/" class="nav-link">Магазин</router-link>
+          <router-link to="/admin/goods" class="nav-link">Продукты</router-link>
         </li>
         <li class="nav-item">
-          <router-link to="/cart" class="nav-link nav-link_basket">
-            Корзина
-            <span v-if="store.getters['cart/cartLength']">{{ store.getters['cart/cartLength'] }}</span>
-          </router-link>
+          <router-link to="/admin/categories" class="nav-link">Категории</router-link>
         </li>
-        <li v-if="store.getters['auth/isAuthenticated']" class="nav-item">
+        <li class="nav-item">
           <a href="/auth" class="nav-link" @click.prevent="logout">Выйти</a>
         </li>
       </ul>
@@ -22,16 +19,19 @@
 </template>
 
 <script setup>
+import {computed} from "vue";
 import {useStore} from 'vuex'
 import {useRouter} from "vue-router";
 
 const store = useStore();
 const router = useRouter();
+const user = computed(() => store.getters['auth/user']);
 
 const logout = () => {
   store.dispatch('auth/logout');
   router.push('/');
 }
+
 </script>
 
 <style scoped lang="scss">
@@ -48,7 +48,7 @@ const logout = () => {
 }
 
 .nav-link,
-.nav-link:focus {
+.nav-link:focus{
   color: var(--white);
   padding: 0;
 }

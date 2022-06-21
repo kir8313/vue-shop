@@ -1,14 +1,11 @@
-import baseAxios from "@/axios/db";
-
 export default {
   namespaced: true,
   state: {
-    cart: JSON.parse(localStorage.getItem('cart')) ? JSON.parse(localStorage.getItem('cart')) : null,
-    order: null,
+    cart: JSON.parse(localStorage.getItem('cart')) ?? {},
   },
   getters: {
     cart: (s) => s.cart,
-    order: (s) => s.order,
+    cartLength: (s) => Object.keys(s.cart).length
   },
   mutations: {
     addGoodInCart(state, id) {
@@ -28,15 +25,15 @@ export default {
     deleteGoodFromCart(state, id) {
       if (Object.keys(state.cart).length > 1) {
         state.cart = Object.fromEntries(Object.entries(state.cart).filter(good => good[0] !== id));
-        localStorage.setItem('cart', JSON.stringify(state.cart))
+        localStorage.setItem('cart', JSON.stringify(state.cart));
       } else {
-        state.cart = null;
-        localStorage.removeItem('cart')
+        state.cart = {};
+        localStorage.removeItem('cart');
       }
     },
 
-    clearCartAndOrder (state) {
-      state.cart = state.order = null;
+    clearCart (state) {
+      state.cart = {};
       localStorage.removeItem('cart');
     },
 
@@ -47,20 +44,5 @@ export default {
         return {title, price, count};
       });
     },
-  },
-
-  actions: {
-    async pushOrder({commit}, order) {
-      try {
-        const {data} = await baseAxios.post('/orders.json', order);
-        if (!data) {
-          throw new Error('Ошибка с добавлением заказа!')
-        }
-        commit('clearCartAndOrder');
-      } catch (e) {
-        commit('changeError', e, {root: true});
-        throw e;
-      }
-    }
   },
 }

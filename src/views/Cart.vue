@@ -6,7 +6,7 @@
     <div class="container">
       <div class="basket">
         <h1>Корзина</h1>
-        <h2 v-if="!cartModel" class="text-center">В корзине пока ничего нет</h2>
+        <h2 v-if="!store.getters['cart/cartLength']" class="text-center">В корзине пока ничего нет</h2>
         <div v-else>
           <div class="basket__inner text-center">
             <cart-good
@@ -19,10 +19,10 @@
           <hr/>
           <p class="text-end"><strong>Всего: {{ sumPrices }} руб.</strong></p>
           <div
-            v-if="isAuth"
+            v-if="store.getters['auth/isAuthenticated']"
             class="text-end"
           >
-            <button class="btn btn-primary" @click="onShowPopup">Оплатить</button>
+            <button class="btn btn-primary" @click="onPay">Оплатить</button>
           </div>
           <div v-else>
             <h3 class="text-center mb-2">Для покупки авторизуйтесь</h3>
@@ -40,48 +40,33 @@
         </div>
       </div>
     </div>
-    <teleport to="body">
-        <cart-order
-          v-if="isShowPopup"
-          :sum-prices="sumPrices"
-          :order="order"
-          @close-popup="onClosePopup"
-        />
-      <app-prompt
-        v-if="prompt"
-        title="Действительно закрыть оплату?"
-        @has-go="closePrompt"
-      />
-    </teleport>
   </section>
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, inject} from "vue";
 import {useStore} from "vuex";
 import CartGood from "@/components/cart/CartGood";
 import Auth from "@/views/Auth";
 import Register from "@/views/Register";
-import AppLoader from "@/components/AppLoader";
-import AppPrompt from "@/components/AppPrompt";
-import CartOrder from "@/components/cart/CartOrder";
-const showForm = ref('auth')
+import AppLoader from "@/components/app/AppLoader";
+import {pay} from "@/utils/pay";
 
+const showForm = ref('auth')
 const store = useStore();
+const user = computed(() => store.getters['auth/user']);
 const cartModel = computed(() => store.getters['cart/cart']);
 const selectedGoods = computed(() => store.getters['goods/selectedGoods']);
-const isAuth = computed(() => Object.keys(store.getters['auth/user']).length);
 const isLoading = ref(true);
-
+const $alert = inject('$alert');
 const isShowPopup = ref(false);
 const prompt = ref(false);
-const order = computed(() => store.getters['cart/order']);
 
 const sumPrices = computed(() => {
   if (selectedGoods.value && cartModel.value) {
-    return selectedGoods.value.reduce((accum, good) => accum += good.price * cartModel.value[good.id], 0)
+    return selectedGoods.value.reduce((accum, good) => accum += good.price * cartModel.value[good.id], 0);
   } else {
-    return 0
+    return 0;
   }
 })
 
@@ -92,12 +77,6 @@ onMounted(async () => {
   isLoading.value = false;
 })
 
-
-const onShowPopup = () => {
-  store.commit('cart/changeOrder', selectedGoods.value);
-  isShowPopup.value = true;
-}
-
 const onClosePopup = (value) => {
   if (!value) {
     prompt.value = true;
@@ -106,15 +85,35 @@ const onClosePopup = (value) => {
   }
 }
 
-const closePrompt = (value) => {
-  if (value) {
-    isShowPopup.value = false
+const onPay = async () => {
+  if (store.getters['auth/isAuthenticated']) {
+    try {
+      await pay({
+        description: 'Покупка товаров в онлайн магазине',
+        amount: sumPrices.value,
+        accountId: user.value.email,
+      })
+      await store.dispatch('order/pushOrder', {
+        time: new Date().toLocaleString(),
+        userId: user.value.id,
+        sumPrices: sumPrices.value,
+        list: []
+      })
+      $alert('Покупка прошла успешно!');
+    } catch (e) {
+      console.log('Отмена платежа: ', e)
+    }
+  } else {
+    await store.dispatch('auth/logout');
   }
-  prompt.value = false;
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
+.form {
+  margin: 0 auto;
+}
+
 .basket {
   background: #fff;
   padding: 20px;
@@ -127,12 +126,5 @@ const closePrompt = (value) => {
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
 }
-
 </style>
 
-<style scoped>
-
-.form {
-  margin: 0 auto;
-}
-</style>

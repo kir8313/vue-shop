@@ -29,7 +29,7 @@ import {computed, onMounted, ref, watch} from "vue";
 import {useStore} from "vuex"
 import ShopGood from "@/components/shop/ShopGood";
 import ShopFilter from "@/components/shop/ShopFilter";
-import AppLoader from "@/components/AppLoader";
+import AppLoader from "@/components/app/AppLoader";
 
 const store = useStore();
 const categories = ref({});
