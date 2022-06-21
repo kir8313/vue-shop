@@ -1,6 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import {authFirebase} from "@/utils/firebase.config";
-import {onAuthStateChanged} from "firebase/auth";
+import {createRouter, createWebHistory} from 'vue-router';
+import store from "../store";
 
 const routes = [
   {
@@ -40,23 +39,27 @@ const routes = [
     }
   },
   {
-    path: '/admin/goods',
-    component: () => import('@/views/AdminGoods.vue'),
+    path: '/admin',
+    component: () => import('@/views/Admin.vue'),
+    name: "Admin",
+    redirect: {name: 'AdminProducts'},
     meta: {
       layout: 'main',
-      auth: true,
-    }
+      admin: true,
+    },
+    children: [
+      {
+        path: 'goods',
+        name: 'AdminProducts',
+        component: () => import('@/views/AdminGoods.vue'),
+      },
+      {
+        path: 'categories',
+        component: () => import('@/views/AdminCategories.vue'),
+      },
+    ]
   },
-  {
-    path: '/admin/categories',
-    component: () => import('@/views/AdminCategories.vue'),
-    meta: {
-      layout: 'main',
-      auth: true,
-    }
-  },
-
-  { path: "/:error(.*)*", redirect: '/' },
+  {path: "/:error(.*)*", redirect: '/'},
 ]
 
 const router = createRouter({
@@ -64,14 +67,17 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from) => {
-  const isAuth = to.matched.some(rout => rout.meta.auth)
-  onAuthStateChanged(authFirebase, (user) => {
-    if (!user && isAuth && !localStorage.getItem('token')) {
-      router.push('/auth')
-    }
-  });
-  // if (to.meta.auth && )
+router.beforeEach((to, from,) => {
+  const isAuth = to.meta.auth;
+  const isAdmin = to.meta.admin;
+
+  if (isAdmin) {
+    setTimeout(() => {
+      if (!store.getters['auth/isAdmin']) {
+        return router.push('/auth?message=admin');
+      }
+    }, 500)
+  }
 })
 
 export default router

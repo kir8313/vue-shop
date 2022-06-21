@@ -1,6 +1,5 @@
-import axios from "axios";
-import {firebaseUrl} from "@/utils/firebaseUrl";
 import transform from "@/use/transform";
+import baseAxios from "@/axios/db";
 
 export default {
   namespaced: true,
@@ -14,11 +13,11 @@ export default {
 
   mutations: {
     changeCategories(s, categories) {
-      s.categories = categories
+      s.categories = categories;
     },
 
     pushCategory(s, category) {
-      s.categories.push(category)
+      s.categories.push(category);
     },
 
     putCategory(s, category) {
@@ -28,64 +27,61 @@ export default {
 
     deleteCategory(s, id) {
       s.categories = s.categories.filter(item => item.id !== id);
-      console.log('s.goods', s.categories)
     },
   },
 
   actions: {
     async getCategories({commit}) {
       try {
-        const {data} = await axios.get(firebaseUrl + 'categories.json');
+        const {data} = await baseAxios.get('/categories.json');
         if (!data) {
-          throw new Error('Ошибка. Нет категорий')
+          throw new Error('Ошибка. Нет категорий');
         }
         commit('changeCategories', transform(data));
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },
 
     async pushCategory({commit, getters}, category) {
       try {
-        const {data} = await axios.post(`${firebaseUrl}categories.json`, category);
-        console.log('data', data)
+        const {data} = await baseAxios.post('/categories.json', category);
+        console.log('data', data);
         if (!data) {
-          console.log('da, error')
-          throw new Error('Ошибка с добавлением категории')
+          throw new Error('Ошибка с добавлением категории');
         }
         commit('pushCategory', {...category, id: data.name});
-        console.log('getters.categories', getters.categories)
+        console.log('getters.categories', getters.categories);
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },
 
     async putCategory({commit}, category) {
       try {
-        const {data} = await axios.put(`${firebaseUrl}categories/${category.id}.json`,
+        const {data} = await baseAxios.put(`/categories/${category.id}.json`,
           Object.fromEntries(Object.entries(category).filter(item => item[0] !== 'id')));
         if (!data) {
-          throw new Error('Ошибка с изменением категории')
+          throw new Error('Ошибка с изменением категории');
         }
         commit('putCategory', category);
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },
 
     async deleteCategory({commit}, id) {
       try {
-        const res = await axios.delete(`${firebaseUrl}categories/${id}.json`);
-        console.log('response', res)
-        if (res.response && res.response.status === 404) {
-          throw new Error('Ошибка с удалением категории')
+        const {response} = await baseAxios.delete(`/categories/${id}.json`);
+        if (response && response.status === 404) {
+          throw new Error('Ошибка с удалением категории');
         }
         commit('deleteCategory', id);
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },

@@ -1,5 +1,4 @@
-import axios from "axios";
-import {firebaseUrl} from "@/utils/firebaseUrl";
+import baseAxios from "@/axios/db";
 
 export default {
   namespaced: true,
@@ -53,7 +52,7 @@ export default {
   actions: {
     async pushOrder({commit}, order) {
       try {
-        const {data} = await axios.post(firebaseUrl + 'orders.json', order);
+        const {data} = await baseAxios.post('/orders.json', order);
         if (!data) {
           throw new Error('Ошибка с добавлением заказа!')
         }

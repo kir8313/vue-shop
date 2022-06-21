@@ -1,7 +1,7 @@
 <template>
   <div class="bg" @click="closePopup($event)">
     <form class="form" @submit.prevent="onSubmit">
-      <button class="btn-close" @click="$emit('closePopup')"></button>
+      <button class="btn-close" type="button" @click="$emit('closePopup')"></button>
       <h1>{{ Object.keys(props.category).length ? 'Изменить' : 'Создать' }} товар</h1>
       <div class="form-floating mb-3">
         <input
@@ -102,8 +102,6 @@ const {value: catType, errorMessage: typeError, handleBlur: typeBlur} = useField
 
 const onSubmit = handleSubmit(async (values) => {
   if (Object.keys(props.category).length) {
-    console.log('props.category', props.category);
-    console.log('values', values)
     await store.dispatch('categories/putCategory', {...values, id: props.category.id});
   } else {
     await store.dispatch('categories/pushCategory', values);
@@ -126,18 +124,18 @@ const deleteCategory = async () => {
 }
 
 const closePopup = (event) => {
-  if (event.target.closest('.form') === null) {
-    emit('closePopup', hasChanges.value)
+  if (!event.target.closest('.form')) {
+    emit('closePopup', hasChanges.value);
   }
 }
 
 const hasChanges = computed(() => {
   return (props.category.title !== catTitle.value && catTitle.value) ||
-    (props.category.type !== catType.value && catType.value)
+    (props.category.type !== catType.value && catType.value);
 })
 
 const title = computed(() => {
-  return Object.keys(props.category).length ? 'Изменить' : 'Создать'
+  return Object.keys(props.category).length ? 'Изменить' : 'Создать';
 })
 
 onMounted(() => {

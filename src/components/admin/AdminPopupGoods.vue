@@ -1,7 +1,7 @@
 <template>
   <div class="bg" @click="closePopup($event)">
     <form class="form" @submit.prevent="onSubmit">
-      <button class="btn-close" @click="$emit('closePopup')"></button>
+      <button class="btn-close" type="button" @click="$emit('closePopup', hasChanges)"></button>
       <h1>{{ Object.keys(good).length ? 'Изменить' : 'Создать' }} товар</h1>
       <div v-if="!iError && img" class="mb-3">
         <img class="form__img" :src="img" alt="Не верный url для картинки">
@@ -66,7 +66,10 @@
           </option>
         </select>
       </div>
-      <button class="btn btn-primary me-2" type="submit" :disabled="isSubmitting || !hasChanges">{{ popupStatus }}</button>
+      <button class="btn btn-primary me-2" type="submit" :disabled="isSubmitting || !hasChanges">{{
+          popupStatus
+        }}
+      </button>
       <button
         v-if="Object.keys(good).length"
         class="btn btn-danger" type="button"
@@ -82,7 +85,7 @@
 <script setup>
 import {useStore} from 'vuex'
 import {useField, useForm} from "vee-validate";
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch, proxyRefs, reactive} from "vue";
 import {useRouter} from "vue-router";
 import * as yup from "yup";
 
@@ -149,6 +152,7 @@ const {value: price, errorMessage: pError, handleBlur: pBlur} = useField('price'
     .min(1, `Цена от 1 рубля`)
 );
 
+
 const popupStatus = computed(() => {
   if (Object.keys(props.good).length) {
     return 'Изменить';
@@ -159,7 +163,6 @@ const popupStatus = computed(() => {
 
 const onSubmit = handleSubmit(async (values) => {
   if (Object.keys(props.good).length) {
-    console.log('values', values)
     await store.dispatch('goods/putGood', {...values, id: props.good.id, "category": category.value});
   } else {
     const good = {...values, "category": category.value};
@@ -169,13 +172,12 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 const deleteGood = async () => {
-  console.log('delete')
   await store.dispatch('goods/deleteGood', props.good.id);
   emit('closePopup');
 }
 
 const closePopup = (event) => {
-  if (event.target.closest('.form') === null) {
+  if (!event.target.closest('.form')) {
     emit('closePopup', hasChanges.value)
   }
 }
@@ -183,10 +185,10 @@ const closePopup = (event) => {
 const hasChanges = computed(() => {
   return props.good.title !== title.value ||
     props.good.price !== price.value ||
-  props.good.count !== count.value ||
-  props.good.img !== img.value ||
-  ( props.good.category !== category.value &&
-  category.value !== props.categories[0].type )
+    props.good.count !== count.value ||
+    props.good.img !== img.value ||
+    (props.good.category !== category.value &&
+      category.value !== props.categories[0].type)
 })
 
 watch([count, price], ([cVal, pVal]) => {

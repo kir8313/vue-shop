@@ -1,6 +1,6 @@
 import axios from "axios";
-import dbUrl from "@/utils/dbUrl";
+import {firebaseUrl} from "@/utils/firebaseUrl";
 
 export default axios.create({
-  url: dbUrl
+  url: firebaseUrl
 })

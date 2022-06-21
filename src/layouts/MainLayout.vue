@@ -12,14 +12,4 @@
 
 <script setup>
 import TheNavbar from "@/components/TheNavbar";
-import {onMounted} from "vue";
-import {useStore} from "vuex";
-
-const store = useStore()
-
-onMounted(async () => {
-  if (localStorage.getItem('token')) {
-    await store.dispatch('auth/getUser');
-  }
-})
 </script>

@@ -1,6 +1,5 @@
-import axios from "axios";
-import {firebaseUrl} from "@/utils/firebaseUrl";
 import transform from "@/use/transform";
+import baseAxios from "@/axios/db";
 
 export default {
   namespaced: true,
@@ -34,7 +33,6 @@ export default {
 
     deleteGood(s, id) {
       s.goods = s.goods.filter(good => good.id !== id);
-      console.log('s.goods', s.goods)
     },
 
     changeSelectedGoods(s, goods) {
@@ -42,33 +40,32 @@ export default {
     },
 
     deleteSelectedGoods(s, id) {
-      console.log('s.selectedGoods', s.selectedGoods)
       s.selectedGoods = s.selectedGoods.filter(good => good.id !== id);
     }
   },
   actions: {
     async getAllGoods({commit}) {
       try {
-        const {data} = await axios.get(firebaseUrl + 'products.json');
+        const {data} = await baseAxios.get('/products.json');
         if (!data) {
           throw new Error('Ошибка. Нет пользователей')
         }
         commit('changeGoods', data)
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },
 
     async getGood({commit}, id) {
       try {
-        const {data} = await axios.get(`${firebaseUrl}products/${id}.json`);
+        const {data} = await baseAxios.get(`/products/${id}.json`);
         if (!data) {
           throw new Error('Ошибка с фильтром товаров')
         }
         return {...data, id};
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },
@@ -76,14 +73,14 @@ export default {
     async getFilterGoods({commit, getters}, urls) {
       if (!getters.goods) {
         try {
-          const {data} = await axios.get(`${firebaseUrl}products.json`);
+          const {data} = await baseAxios.get(`/products.json`);
           if (!data) {
             throw new Error('Ошибка с фильтром товаров')
           }
           const goods = Object.keys(data).map(key => ({...data[key], id: key}))
           commit('changeSelectedGoods', filterGoods(urls, goods));
         } catch (e) {
-          commit('changeError', e);
+          commit('changeError', e, {root: true});
           throw e;
         }
       } else {
@@ -95,7 +92,7 @@ export default {
           return Object.keys(urlKeys).reduce((accum, key) => {
             const good = goods.find(good => good.id === key);
             if (good) {
-              return [...accum, good]
+              return [...accum, good];
             }
           }, [])
         } else {
@@ -108,40 +105,37 @@ export default {
 
     async pushGood({commit}, good) {
       try {
-        const {data} = await axios.post(`${firebaseUrl}products.json`, good);
+        const {data} = await baseAxios.post('/products.json', good);
         if (!data) {
-          console.log('da, error')
-          throw new Error('Ошибка с добавлением товара')
+          throw new Error('Ошибка с добавлением товара');
         }
-        console.log('data', data)
         commit('pushGood', {...good, id: data.name});
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },
 
     async putGood({commit}, good) {
       try {
-        const {data} = await axios.put(`${firebaseUrl}products/${id}.json`,
+        const {data} = await baseAxios.put(`/products/${good.id}.json`,
           Object.fromEntries(Object.entries(good).filter(item => item[0] !== 'id')));
         if (!data) {
-          throw new Error('Ошибка с изменением товара')
+          throw new Error('Ошибка с изменением товара');
         }
         commit('putGood', good);
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },
 
     async deleteGood({commit}, id) {
       try {
-        const response = await axios.delete(`${firebaseUrl}products/${id}.json`);
-        console.log('response', response)
+        await baseAxios.delete(`/products/${id}.json`);
         commit('deleteGood', id);
       } catch (e) {
-        commit('changeError', e);
+        commit('changeError', e, {root: true});
         throw e;
       }
     },

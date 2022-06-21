@@ -39,8 +39,8 @@
 <script setup>
 import {useStore} from 'vuex'
 import {useField, useForm} from "vee-validate";
-import {computed, inject, ref, watch} from "vue";
-import {useRouter} from "vue-router";
+import {computed, inject, onMounted, ref, watch} from "vue";
+import {useRoute, useRouter} from "vue-router";
 import * as yup from "yup";
 import alerts from "@/utils/alerts";
 
@@ -49,6 +49,7 @@ const store = useStore()
 const TIMER = 10;
 const timerCount = ref(TIMER);
 const router = useRouter();
+const route = useRoute();
 let SetTimer;
 const $error = inject('$error');
 
@@ -65,6 +66,12 @@ const onRegister = () => {
     router.push('/register')
   }
 }
+
+onMounted(() => {
+  if (route.query.message) {
+    $error(alerts[route.query.message]);
+  }
+})
 
 const error = computed(() => {
   return store.getters.error;

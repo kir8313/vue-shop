@@ -3,6 +3,7 @@
     <div class="container">
       <span class="navbar__logo">{{ isAdmin ? 'Админка' : 'ShopArz' }}</span>
       <ul v-if="isAdmin" class="nav">
+        <li v-if="user" class="nav-item">Привет <b>{{ user.name }}!</b></li>
         <li class="nav-item">
           <router-link to="/admin/goods" class="nav-link">Продукты</router-link>
         </li>
@@ -14,6 +15,7 @@
         </li>
       </ul>
       <ul v-else class="nav">
+        <li v-if="Object.keys(user).length" class="nav-item">{{ user.name }}</li>
         <li class="nav-item">
           <router-link to="/" class="nav-link">Магазин</router-link>
         </li>
@@ -23,7 +25,7 @@
             <span v-if="basketCount">{{ basketCount }}</span>
           </router-link>
         </li>
-        <li v-if="user" class="nav-item">
+        <li v-if="Object.keys(user).length" class="nav-item">
           <a href="/auth" class="nav-link" @click.prevent="logout">Выйти</a>
         </li>
       </ul>

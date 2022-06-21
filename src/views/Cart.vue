@@ -70,7 +70,7 @@ const showForm = ref('auth')
 const store = useStore();
 const cartModel = computed(() => store.getters['cart/cart']);
 const selectedGoods = computed(() => store.getters['goods/selectedGoods']);
-const isAuth = computed(() => store.getters['auth/user']);
+const isAuth = computed(() => Object.keys(store.getters['auth/user']).length);
 const isLoading = ref(true);
 
 const isShowPopup = ref(false);

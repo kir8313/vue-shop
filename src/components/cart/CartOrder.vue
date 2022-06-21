@@ -16,6 +16,9 @@
         <label class="form-label" for="title">Номер карты</label>
         <small class="form-text" v-if="pError">{{ pError }}</small>
       </div>
+      <p class="text-end fw-bold mb-3">
+        К оплате {{ sumPrices }} руб.
+      </p>
       <button class="btn btn-primary me-2" type="submit" :disabled="isSubmitting || !isValidPay">Оплатить</button>
     </form>
   </div>
