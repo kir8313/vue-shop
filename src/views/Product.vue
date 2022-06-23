@@ -6,50 +6,50 @@
   >
     Товар не найден.
   </h3>
-  <div v-else class="card mx-3">
-      <h1 class="card__title">{{ good.title }}</h1>
-      <img class="card__img" :src="good.img"/>
-      <p class="card__category">Категория: <strong>{{ findTitleFromCategory(good.category, categories) }}</strong></p>
-      <p class="card__price">{{ isHaveGoodCount(good.count, good.price) }}</p>
-      <div
-        v-if="good.count !== 0"
-        class="products-bottom"
+  <div v-else class="card">
+    <h1 class="card__title">{{ good.title }}</h1>
+    <img class="card__img" :src="good.img"/>
+    <p class="card__category">Категория: <strong>{{ findTitleFromCategory(good.category, categories) }}</strong></p>
+    <p class="card__price">{{ isHaveGoodCount(good.count, good.price) }}</p>
+    <div
+      v-if="good.count !== 0"
+      class="products-bottom"
+    >
+      <button
+        v-if="!isAddToCart && good.selectedCount === undefined"
+        class="products-bottom__btn btn btn-primary"
+        @click="addToCart"
       >
+        В корзину
+      </button>
+      <div v-else class="text-center">
         <button
-          v-if="!isAddToCart && good.selectedCount === undefined"
-          class="products-bottom__btn btn btn-primary"
-          @click="addToCart"
+          v-if="isDecrement"
+          class="btn btn-danger btn_sum"
+          @click="deleteToCart"
         >
-          В корзину
+          <img class="trash" src="@/assets/trash-can.svg" alt="Удалить">
         </button>
-        <div v-else class="text-center">
-          <button
-            v-if="isDecrement"
-            class="btn btn-danger btn_sum"
-            @click="deleteToCart"
-          >
-            <img class="trash" src="@/assets/trash-can.svg" alt="Удалить">
-          </button>
-          <button v-else class="btn btn-danger btn_sum" @click="decrement">
-            -
-          </button>
-          <span class="count">{{ count }} шт.</span>
-          <button
-            :disabled="count >= good.count"
-            class="btn btn-primary btn_sum"
-            @click="increment"
-          >
-            +
-          </button>
-          <p
-            v-if="count >= good.count"
-            class="limit"
-          >
-            Максимальное количество товара: {{ good.count }}
-          </p>
-        </div>
+        <button v-else class="btn btn-danger btn_sum" @click="decrement">
+          -
+        </button>
+        <span class="count">{{ count }} шт.</span>
+        <button
+          :disabled="count >= good.count"
+          class="btn btn-primary btn_sum"
+          @click="increment"
+        >
+          +
+        </button>
+        <p
+          v-if="count >= good.count"
+          class="limit"
+        >
+          Максимальное количество товара: {{ good.count }}
+        </p>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -122,7 +122,7 @@ onMounted(async () => {
 <style scoped>
 .card {
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0 15px;
   padding: 30px 20px;
   border-radius: 20px;
   color: var(--dark);
@@ -133,5 +133,11 @@ onMounted(async () => {
   display: block;
   margin: 0 auto;
   max-width: 200px;
+}
+
+@media (min-width: 600px) {
+  .card {
+    margin: 0 auto;
+  }
 }
 </style>
