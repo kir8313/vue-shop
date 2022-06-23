@@ -50,13 +50,13 @@ export default {
   actions: {
     async getAllGoods({commit}) {
       try {
-        const {data} = await baseAxios.get('/products.json');
+        const {data} = await baseAxios.get("/products.json");
         if (!data) {
-          throw new Error('Ошибка. Нет пользователей')
+          throw new Error("Ошибка. Нет пользователей")
         }
-        commit('changeGoods', data)
+        commit("changeGoods", data)
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },
@@ -65,11 +65,11 @@ export default {
       try {
         const {data} = await baseAxios.get(`/products/${id}.json`);
         if (!data) {
-          throw new Error('Ошибка с фильтром товаров')
+          throw new Error("Ошибка с получением товара")
         }
         return {...data, id};
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },
@@ -79,16 +79,16 @@ export default {
         try {
           const {data} = await baseAxios.get(`/products.json`);
           if (!data) {
-            throw new Error('Ошибка с фильтром товаров')
+            throw new Error("Ошибка с фильтром товаров")
           }
-          commit('changeGoods', data)
-          commit('changeSelectedGoods', filterGoods(urls, transform(data)));
+          commit("changeGoods", data)
+          commit("changeSelectedGoods", filterGoods(urls, transform(data)));
         } catch (e) {
-          commit('changeError', e, {root: true});
+          commit("changeError", e, {root: true});
           throw e;
         }
       } else {
-        commit('changeSelectedGoods', filterGoods(urls, getters.goods));
+        commit("changeSelectedGoods", filterGoods(urls, getters.goods));
       }
 
       function filterGoods(urlKeys, goods) {
@@ -109,13 +109,13 @@ export default {
 
     async pushGood({commit}, good) {
       try {
-        const {data} = await baseAxios.post('/products.json', good);
+        const {data} = await baseAxios.post("/products.json", good);
         if (!data) {
-          throw new Error('Ошибка с добавлением товара');
+          throw new Error("Ошибка с добавлением товара");
         }
-        commit('pushGood', {...good, id: data.name});
+        commit("pushGood", {...good, id: data.name});
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },

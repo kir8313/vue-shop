@@ -1,12 +1,12 @@
 import {authFirebase, logout} from "@/utils/firebase.config";
-import {signInWithEmailAndPassword, createUserWithEmailAndPassword} from 'firebase/auth';
+import {signInWithEmailAndPassword, createUserWithEmailAndPassword} from "firebase/auth";
 import baseAxios from "@/axios/db";
 import axios from "axios";
 
-const TOKEN_KEY = 'jwt-token';
-const REFRESH_KEY = 'jwt-refresh-token';
-const EXPIRES_KEY = 'jwt-expires';
-const USER_KEY = 'shop-user';
+const TOKEN_KEY = "jwt-token";
+const REFRESH_KEY = "jwt-refresh-token";
+const EXPIRES_KEY = "jwt-expires";
+const USER_KEY = "shop-user";
 
 export default {
   namespaced: true,
@@ -21,7 +21,7 @@ export default {
       return state.user;
     },
     isAdmin(state) {
-      return state.user.role === 'admin';
+      return state.user.role === "admin";
     },
     token(state) {
       return state.token;
@@ -52,7 +52,7 @@ export default {
       localStorage.removeItem(EXPIRES_KEY);
       localStorage.removeItem(USER_KEY);
     },
-    changeToken(state, {refreshToken, idToken, expiresIn = '3600'}) {
+    changeToken(state, {refreshToken, idToken, expiresIn = "3600"}) {
       const expiresDate = new Date(new Date().getTime() + +expiresIn * 1000);
       state.token = idToken;
       state.refreshToken = refreshToken;
@@ -66,10 +66,10 @@ export default {
     async login({dispatch, commit}, {email, password}) {
       try {
         const {_tokenResponse} = await signInWithEmailAndPassword(authFirebase, email, password);
-        commit('changeToken', _tokenResponse);
-        dispatch('getUser', _tokenResponse.localId);
+        commit("changeToken", _tokenResponse);
+        dispatch("getUser", _tokenResponse.localId);
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },
@@ -77,29 +77,29 @@ export default {
     async register({dispatch, commit}, {email, password, name}) {
       try {
         const {_tokenResponse} = await createUserWithEmailAndPassword(authFirebase, email, password);
-        commit('changeToken', _tokenResponse);
-        await dispatch('createUser', {..._tokenResponse, name});
+        commit("changeToken", _tokenResponse);
+        await dispatch("createUser", {..._tokenResponse, name});
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },
 
     async logout({commit}) {
       await logout;
-      commit('clearSession');
+      commit("clearSession");
     },
 
     async createUser({commit}, payload) {
       try {
         await baseAxios.put(`/users/${payload.localId}.json`, {
           name: payload.name,
-          role: 'user',
+          role: "user",
           email: payload.email
         });
-        commit('updateUser', {name: payload.name, role: 'user', email: payload.email , id: payload.localId});
+        commit("updateUser", {name: payload.name, role: "user", email: payload.email , id: payload.localId});
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },

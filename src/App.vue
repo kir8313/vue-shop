@@ -5,7 +5,7 @@
 <script>
 import AuthLayout from "@/layouts/AuthLayout";
 import MainLayout from "@/layouts/MainLayout";
-// import AdminLayout from "@/layouts/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 
 export default {
   components: {
@@ -18,7 +18,6 @@ export default {
 
 import {computed, ref} from "vue";
 import {useRoute} from "vue-router";
-import AdminLayout from "@/layouts/AdminLayout";
 
 const route = useRoute();
 const layout = computed(() => route.meta.layout);

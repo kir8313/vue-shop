@@ -25,23 +25,25 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref, watch} from "vue";
-import {useStore} from "vuex"
+import {onMounted, ref, watch, computed} from "vue";
+import {useStore} from "vuex";
 import ShopGood from "@/components/shop/ShopGood";
 import ShopFilter from "@/components/shop/ShopFilter";
 import AppLoader from "@/components/app/AppLoader";
+import showError from "@/use/showError";
 
 const store = useStore();
-const categories = ref({});
 const isLoading = ref(true);
-const stateGoods = ref(store.getters['goods/goods'])
+const categories = computed(() => store.getters["categories/categories"]);
+const stateGoods = computed(() => store.getters["goods/goods"]);
 const goods = ref(stateGoods.value);
 const filters = ref({});
 
+showError();
+
 watch([stateGoods, filters], ([newVal, {search, category}]) => {
   if (newVal) {
-    let newGoods = store.getters['goods/goods'];
-
+    let newGoods = stateGoods.value;
     if (search) {
       newGoods = newGoods.filter(good => good.title.toLowerCase().includes(search.toLowerCase()));
     }
@@ -55,14 +57,15 @@ watch([stateGoods, filters], ([newVal, {search, category}]) => {
 
 onMounted(async () => {
   if (!store.getters.goods) {
-    await store.dispatch('goods/getAllGoods');
+    try {
+      await store.dispatch("goods/getAllGoods");
+    } catch (e) {}
   }
   if (!store.getters.categories) {
-    await store.dispatch('categories/getCategories');
+    try {
+    await store.dispatch("categories/getCategories");
+    } catch (e) {}
   }
-
-  stateGoods.value = store.getters['goods/goods'];
-  categories.value = store.getters['categories/categories'];
   isLoading.value = false;
 })
 </script>
@@ -71,43 +74,28 @@ onMounted(async () => {
 .products {
   &__inner {
     display: flex;
-    align-items: flex-start;
-  }
-
-  &-filter {
-    margin-right: 2rem;
-    width: 300px;
-    padding: 20px;
-    background: white;
-    border-radius: 20px;
-
-    .list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      color: var(--dark);
-    }
+    flex-direction: column;
   }
 
   &__cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 20px 10px;
-    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
     flex: 1;
   }
 
   &-item {
-    max-width: 300px;
+    max-width: 44%;
     background: white;
     display: flex;
     flex-direction: column;
     color: var(--dark);
     border-radius: 20px;
+    margin: 0 10px 20px;
     padding: 15px 10px;
 
     &:hover .products-item__img {
-      transform: scale(1.05);
+      transform: scale(1.1);
     }
 
     &__img {
@@ -141,13 +129,9 @@ onMounted(async () => {
 
 @media (min-width: 768px) {
   .products {
-    &__cards {
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      grid-gap: 30px 20px;
-    }
-
     &-item {
       padding: 20px;
+      max-width: 210px;
 
       &-info {
         flex: 1;
@@ -167,6 +151,23 @@ onMounted(async () => {
 @media (max-width: 767px) {
   .main__container {
     max-width: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .products .container {
+    max-width: none;
+  }
+
+  .products__inner {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 1400px) {
+  .products .container {
+    max-width: 1320px;
   }
 }
 </style>

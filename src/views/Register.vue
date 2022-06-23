@@ -41,68 +41,61 @@
       Уже есть аккаунт?
       <a href="/auth" class="form__link" @click.prevent="onAuth">Войти</a>
     </div>
-    <button class="btn btn-primary" type="submit" :disabled="isSubmitting || validSession">Создать</button>
-    <p class="text-danger" v-if="validSession">
+    <button class="btn btn-primary" type="submit" :disabled="isSubmitting || isValidSession">Создать</button>
+    <p class="text-danger" v-if="isValidSession">
       Повторите попытку позже. Через {{ timerCount }} секунд.
     </p>
   </form>
 </template>
 
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from "vuex"
 import {useField, useForm} from "vee-validate";
-import {computed, ref, watch, inject} from "vue";
+import {computed, ref, watch} from "vue";
 import {useRouter} from "vue-router";
 import * as yup from "yup";
-import alerts from "@/utils/alerts";
+import showError from "@/use/showError";
 
 const {handleSubmit, isSubmitting, submitCount} = useForm();
-const store = useStore()
+const store = useStore();
 const TIMER = 10;
 const timerCount = ref(TIMER);
 const router = useRouter();
 let SetTimer;
-const $error = inject('$error');
+
+showError();
 
 const props = defineProps({
   isCart: Boolean,
 })
 
-const emit = defineEmits(['onShowForm']);
+const emit = defineEmits(["onShowForm"]);
 
 const onAuth = () => {
   if (props.isCart) {
-    emit('onShowForm');
+    emit("onShowForm");
   } else {
-    router.push('/auth')
+    router.push("/auth");
   }
 }
 
-const error = computed(() => {
-  return store.getters.error;
-})
-
-watch(error, fbError => {
-  $error(alerts[fbError.code] || `Неожиданная ошибка (${fbError.code})`)
-})
-
-const {value: name, errorMessage: nError, handleBlur: nBlur} = useField('name',
+const {value: name, errorMessage: nError, handleBlur: nBlur} = useField("name",
   yup
     .string()
     .trim()
-    .required('Введите имя')
+    .required("Введите имя")
 )
 
-const {value: email, errorMessage: eError, handleBlur: eBlur} = useField('email',
+const {value: email, errorMessage: eError, handleBlur: eBlur} = useField("email",
   yup
     .string()
     .trim()
-    .required('Введите email')
-    .email('Введите корректный email')
+    .required("Введите email")
+    .email("Введите корректный email")
 );
 
 const PASSWORD_LENGTH = 6;
-const {value: password, errorMessage: pError, handleBlur: pBlur} = useField('password',
+const {value: password, errorMessage: pError, handleBlur: pBlur} = useField("password",
   yup
     .string()
     .trim()
@@ -110,8 +103,8 @@ const {value: password, errorMessage: pError, handleBlur: pBlur} = useField('pas
     .min(PASSWORD_LENGTH, `Пароль должен содержать от ${PASSWORD_LENGTH} символов`)
 );
 
-const validSession = computed(() => submitCount.value >= 3);
-watch(validSession, val => {
+const isValidSession = computed(() => submitCount.value >= 3);
+watch(isValidSession, val => {
   if (val) {
     SetTimer = setInterval(() => timerCount.value--, 1000);
     let timer = setTimeout(() => {
@@ -125,9 +118,9 @@ watch(validSession, val => {
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await store.dispatch('auth/register', values);
+    await store.dispatch("auth/register", values);
     if (!props.isCart) {
-      await router.push('/');
+      await router.push("/");
     }
   } catch (e) {}
 })

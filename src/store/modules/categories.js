@@ -33,28 +33,26 @@ export default {
   actions: {
     async getCategories({commit}) {
       try {
-        const {data} = await baseAxios.get('/categories.json');
+        const {data} = await baseAxios.get("/categories.json");
         if (!data) {
-          throw new Error('Ошибка. Нет категорий');
+          throw new Error("Ошибка. Нет категорий");
         }
-        commit('changeCategories', transform(data));
+        commit("changeCategories", transform(data));
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },
 
     async pushCategory({commit, getters}, category) {
       try {
-        const {data} = await baseAxios.post('/categories.json', category);
-        console.log('data', data);
+        const {data} = await baseAxios.post("/categories.json", category);
         if (!data) {
-          throw new Error('Ошибка с добавлением категории');
+          throw new Error("Ошибка с добавлением категории");
         }
-        commit('pushCategory', {...category, id: data.name});
-        console.log('getters.categories', getters.categories);
+        commit("pushCategory", {...category, id: data.name});
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },
@@ -62,13 +60,13 @@ export default {
     async putCategory({commit}, category) {
       try {
         const {data} = await baseAxios.put(`/categories/${category.id}.json`,
-          Object.fromEntries(Object.entries(category).filter(item => item[0] !== 'id')));
+          Object.fromEntries(Object.entries(category).filter(item => item[0] !== "id")));
         if (!data) {
-          throw new Error('Ошибка с изменением категории');
+          throw new Error("Ошибка с изменением категории");
         }
-        commit('putCategory', category);
+        commit("putCategory", category);
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },
@@ -77,11 +75,11 @@ export default {
       try {
         const {response} = await baseAxios.delete(`/categories/${id}.json`);
         if (response && response.status === 404) {
-          throw new Error('Ошибка с удалением категории');
+          throw new Error("Ошибка с удалением категории");
         }
-        commit('deleteCategory', id);
+        commit("deleteCategory", id);
       } catch (e) {
-        commit('changeError', e, {root: true});
+        commit("changeError", e, {root: true});
         throw e;
       }
     },

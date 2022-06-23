@@ -1,4 +1,4 @@
-import { createStore } from 'vuex'
+import { createStore } from "vuex"
 import auth from "./modules/auth";
 import goods from "./modules/goods";
 import cart from "./modules/cart";
@@ -24,7 +24,7 @@ export default createStore({
   actions: {
     async getUid() {
       const user = authFirebase.currentUser
-      return user ? user.uid : localStorage.getItem('token') ? localStorage.getItem('token') :  null;
+      return user ? user.uid : localStorage.getItem("token") ? localStorage.getItem("token") :  null;
     },
   },
   modules: {

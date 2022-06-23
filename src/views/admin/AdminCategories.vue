@@ -1,5 +1,7 @@
 <template>
-  <section class="categories card">
+  <app-loader v-if="isLoading"/>
+  <h1 v-else-if="!categories">Категории не найдены</h1>
+  <section v-else class="categories card">
     <div class="d-flex justify-content-between mb-4">
       <h2>Категории</h2>
       <button class="btn btn-primary" @click="createCategory">Создать</button>
@@ -17,7 +19,7 @@
       >
         <div>{{ category.title }}</div>
         <div>
-          <button class="btn btn-info" :data-id="category.id" @click="changeCategory($event)">Изменить</button>
+          <button class="btn btn-info" @click="findCategoryById(category.id)">Изменить</button>
         </div>
       </div>
     </div>
@@ -42,26 +44,33 @@ import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
 import AdminPopupCategories from "@/components/admin/AdminPopupCategories";
 import AppPrompt from "@/components/app/AppPrompt";
+import showError from "@/use/showError";
+import AppLoader from "@/components/app/AppLoader";
 
 const store = useStore();
 const isShowPopup = ref(false);
 const category = ref({});
 const prompt = ref(false);
+const isLoading = ref(true);
+const categories = computed(() => store.getters["categories/categories"]);
+
+showError();
 
 const createCategory = () => {
   category.value = {};
   isShowPopup.value = true;
 }
 
-const changeCategory = (event) => {
-  category.value = store.getters['categories/categories'].find(item => item.id === event.target.getAttribute('data-id'));
+const findCategoryById = (id) => {
+  category.value = categories.value.find(item => item.id === id);
   isShowPopup.value = true;
 }
 
-const categories = computed(() => store.getters['categories/categories'])
-
 onMounted(async () => {
-  await store.dispatch('categories/getCategories');
+  try {
+    await store.dispatch("categories/getCategories");
+  } catch (e) {}
+  isLoading.value = false;
 })
 
 const onClosePopup = (value) => {
@@ -75,11 +84,9 @@ const onClosePopup = (value) => {
 const closePrompt = (value) => {
   if (value) {
     isShowPopup.value = false;
-
   }
   prompt.value = false;
 }
-
 </script>
 
 <style scoped lang="scss">

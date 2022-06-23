@@ -9,7 +9,8 @@
           @click="emit('update:modelValue', +route.query.page - 1)"
         >
           <span aria-hidden="true">&laquo;</span>
-        </button></li>
+        </button>
+      </li>
       <li
         v-for="idx in pages"
         class="page-item"
@@ -29,7 +30,8 @@
           :disabled="+route.query.page >= pages"
         >
           <span aria-hidden="true">&raquo;</span>
-        </button></li>
+        </button>
+      </li>
     </ul>
   </nav>
 </template>
@@ -49,7 +51,7 @@ const props = defineProps({
   },
   modelValue: Number
 })
-const emit = defineEmits(['update:modelValue',])
+const emit = defineEmits(["update:modelValue"])
 
 const router = useRouter();
 const route = useRoute();

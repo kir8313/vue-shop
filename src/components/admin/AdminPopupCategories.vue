@@ -2,7 +2,7 @@
   <div class="bg" @click="closePopup($event)">
     <form class="form" @submit.prevent="onSubmit">
       <button class="btn-close" type="button" @click="$emit('closePopup')"></button>
-      <h1>{{ Object.keys(props.category).length ? 'Изменить' : 'Создать' }} товар</h1>
+      <h1>{{ Object.keys(category).length ? 'Изменить' : 'Создать' }} товар</h1>
       <div class="form-floating mb-3">
         <input
           class="form-control"
@@ -49,7 +49,7 @@ import {computed, onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
 import * as yup from "yup";
 
-const emit = defineEmits(['closePopup']);
+const emit = defineEmits(["closePopup"]);
 const props = defineProps({
   categories: {
     required: true,
@@ -67,65 +67,65 @@ const store = useStore()
 const router = useRouter();
 const category = ref(props.category);
 
-const {value: catTitle, errorMessage: tError, handleBlur: tBlur} = useField('title',
+const {value: catTitle, errorMessage: tError, handleBlur: tBlur} = useField("title",
   yup
     .string()
     .trim()
-    .required('Введите название товара')
-    .test('isUnique', 'Такое название уже существует', el => {
+    .required("Введите название товара")
+    .test("isUnique", "Такое название уже существует", el => {
       if (el && Object.keys(category).length === 0) {
-        for (let cat of store.getters['categories/categories']) {
+        for (let cat of store.getters["categories/categories"]) {
           if (cat.title.toLowerCase() === el.toLowerCase()) {
-            return false
+            return false;
           }
         }
       }
-      return true
+      return true;
     })
 )
-const {value: catType, errorMessage: typeError, handleBlur: typeBlur} = useField('type',
+const {value: catType, errorMessage: typeError, handleBlur: typeBlur} = useField("type",
   yup
     .string()
     .trim()
-    .required('Введите тип товара')
-    .test('isUnique', 'Такой тип уже существует', el => {
+    .required("Введите тип товара")
+    .test("isUnique", "Такой тип уже существует", el => {
       if (el && Object.keys(category).length === 0) {
-        for (let cat of store.getters['categories/categories']) {
+        for (let cat of store.getters["categories/categories"]) {
           if (cat.type.toLowerCase() === el.toLowerCase()) {
-            return false
+            return false;
           }
         }
       }
-      return true
+      return true;
     })
 )
 
 const onSubmit = handleSubmit(async (values) => {
   if (Object.keys(props.category).length) {
-    await store.dispatch('categories/putCategory', {...values, id: props.category.id});
+    await store.dispatch("categories/putCategory", {...values, id: props.category.id});
   } else {
-    await store.dispatch('categories/pushCategory', values);
+    await store.dispatch("categories/pushCategory", values);
   }
-  emit('closePopup');
+  emit("closePopup");
 })
 
 
 const popupStatus = computed(() => {
   if (Object.keys(props.category).length) {
-    return 'Изменить';
+    return "Изменить";
   } else {
-    return 'Создать';
+    return "Создать";
   }
 })
 
 const deleteCategory = async () => {
-  await store.dispatch('categories/deleteCategory', props.category.id);
-  emit('closePopup');
+  await store.dispatch("categories/deleteCategory", props.category.id);
+  emit("closePopup");
 }
 
 const closePopup = (event) => {
   if (!event.target.closest('.form')) {
-    emit('closePopup', hasChanges.value);
+    emit("closePopup", hasChanges.value);
   }
 }
 
@@ -135,7 +135,7 @@ const hasChanges = computed(() => {
 })
 
 const title = computed(() => {
-  return Object.keys(props.category).length ? 'Изменить' : 'Создать';
+  return Object.keys(props.category).length ? "Изменить" : "Создать";
 })
 
 onMounted(() => {

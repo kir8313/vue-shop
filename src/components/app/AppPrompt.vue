@@ -11,17 +11,17 @@
 </template>
 
 <script setup>
-const emit = defineEmits(['hasGo']);
+const emit = defineEmits(["hasGo"]);
 const props = defineProps({
   title: {
     type: String,
-    default: 'Покинуть страницу?'
+    default: "Покинуть страницу?"
   }
 })
 
 const closePopup = (event) => {
   if (event.target.closest('.card') === null) {
-    emit('hasGo', true)
+    emit("hasGo", true)
   }
 }
 </script>

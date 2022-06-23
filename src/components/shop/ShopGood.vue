@@ -5,7 +5,7 @@
     </router-link>
     <router-link :to="'/product/' + good.id" class="products-item-info">
       <p class="products-item-info__brand mt-2">{{ good.title }}</p>
-      <p class="products-item-info__price">{{ isHaveGood(good.count, good.price) }} </p>
+      <p class="products-item-info__price">{{ isHaveGoodCount(good.count, good.price) }} </p>
     </router-link>
     <div
       v-if="good.count !== 0"
@@ -29,7 +29,7 @@
         <button v-else class="btn btn-danger btn_sum" @click="decrement">
           -
         </button>
-        <span class="count">{{ count }} шт.</span>
+        <span class="count">{{ count }} кг</span>
         <button
           :disabled="count >= good.count"
           class="btn btn-primary btn_sum"
@@ -41,7 +41,7 @@
           v-if="count >= good.count"
           class="limit"
         >
-          Максимальное количество товара: {{ good.count }}
+          Лимит: {{ good.count }}
         </p>
       </div>
     </div>
@@ -51,7 +51,7 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
-import isHaveGood from "@/use/isHaveGood";
+import isHaveGoodCount from "@/use/isHaveGoodCount";
 
 const props = defineProps({
   good: {
@@ -65,33 +65,33 @@ const isAddToCart = ref(false);
 
 const addToCart = () => {
   isAddToCart.value = true;
-  store.commit('cart/addGoodInCart', props.good.id);
+  store.commit("cart/addGoodInCart", props.good.id);
 }
 
 const deleteToCart = () => {
   isAddToCart.value = false;
-  store.commit('cart/deleteGoodFromCart', props.good.id);
+  store.commit("cart/deleteGoodFromCart", props.good.id);
 }
 
 const decrement = () => {
   if (count.value > 1) {
-    store.commit('cart/changeGoodCountInCart', {type: 'decrement', id: props.good.id});
-    count.value = store.getters['cart/cart'][props.good.id]
+    store.commit("cart/changeGoodCountInCart", {type: "decrement", id: props.good.id});
+    count.value = store.getters["cart/cart"][props.good.id];
   }
 };
 
 const increment = () => {
   if (count.value < props.good.count) {
-    store.commit('cart/changeGoodCountInCart', {type: 'increment', id: props.good.id});
-    count.value = store.getters['cart/cart'][props.good.id];
+    store.commit("cart/changeGoodCountInCart", {type: "increment", id: props.good.id});
+    count.value = store.getters["cart/cart"][props.good.id];
   }
 };
 
 const isDecrement = computed(() => count.value <= 1);
 
 onMounted(async () => {
-  if (store.getters['cart/cart']) {
-    const getGoodFromCart = Object.entries(store.getters['cart/cart']).find(cartGood => cartGood[0] === props.good.id);
+  if (store.getters["cart/cart"]) {
+    const getGoodFromCart = Object.entries(store.getters["cart/cart"]).find(cartGood => cartGood[0] === props.good.id);
     if (getGoodFromCart) {
       count.value = getGoodFromCart[1];
       isAddToCart.value = true;

@@ -1,17 +1,16 @@
 <template>
   <app-loader v-if="isLoading"/>
-  <div v-else>
-    <h3
-      v-if="!good"
-      class="text-center text-white"
-    >
-      Товар не найден.
-    </h3>
-    <div class="card" v-else>
+  <h3
+    v-else-if="!good"
+    class="text-center text-white"
+  >
+    Товар не найден.
+  </h3>
+  <div v-else class="card mx-3">
       <h1 class="card__title">{{ good.title }}</h1>
       <img class="card__img" :src="good.img"/>
-      <p class="card__category">Категория: <strong>{{ showCurrentCategory(good.category, categories) }}</strong></p>
-      <p class="card__price">{{ isHaveGood(good.count, good.price) }}</p>
+      <p class="card__category">Категория: <strong>{{ findTitleFromCategory(good.category, categories) }}</strong></p>
+      <p class="card__price">{{ isHaveGoodCount(good.count, good.price) }}</p>
       <div
         v-if="good.count !== 0"
         class="products-bottom"
@@ -51,8 +50,6 @@
         </div>
       </div>
     </div>
-  </div>
-
 </template>
 
 <script setup>
@@ -60,42 +57,39 @@ import {onMounted, ref, computed} from "vue";
 import {useRoute} from "vue-router";
 import {useStore} from "vuex";
 import AppLoader from "@/components/app/AppLoader";
-import showCurrentCategory from "@/use/showCurrentCategory";
-import isHaveGood from "@/use/isHaveGood";
-import {logout} from "@/utils/firebase.config";
+import findTitleFromCategory from "@/use/findTitleFromCategory";
+import isHaveGoodCount from "@/use/isHaveGoodCount";
+import showError from "@/use/showError";
 
 const store = useStore();
 const route = useRoute();
 const isLoading = ref(true);
 const good = ref([]);
-const categories = ref([])
+const categories = computed(() => store.getters["categories/categories"]);
 const count = ref(1);
 const isAddToCart = ref(false);
 
+showError();
+
 const addToCart = () => {
   isAddToCart.value = true;
-  store.commit('cart/addGoodInCart', good.value.id);
-  console.log('cart', store.getters['cart/cart'])
+  store.commit("cart/addGoodInCart", good.value.id);
 }
 
 const deleteToCart = () => {
   isAddToCart.value = false;
-  store.commit('cart/deleteGoodFromCart', good.value.id);
-  console.log('cart', store.getters['cart/cart']);
+  store.commit("cart/deleteGoodFromCart", good.value.id);
 }
 
 const decrement = () => {
   count.value--;
-  console.log('good.value.id', good.value)
-  store.commit('cart/changeGoodCountInCart', {type: 'decrement', id: good.value.id});
-  console.log('cart', store.getters['cart/cart']);
+  store.commit("cart/changeGoodCountInCart", {type: "decrement", id: good.value.id});
 };
 
 const increment = () => {
   if (count.value < good.value.count) {
     count.value++;
-    store.commit('cart/ChangeGoodCountInCart', {type: 'increment', id: good.value.id});
-    console.log('cart', store.getters['cart/cart']);
+    store.commit("cart/ChangeGoodCountInCart", {type: "increment", id: good.value.id});
   }
 };
 
@@ -103,22 +97,23 @@ const isDecrement = computed(() => count.value <= 1);
 
 onMounted(async () => {
   if (store.getters.goods) {
-    good.value = store.getters['goods/goods'].find(good => good.id === route.params.id);
+    good.value = store.getters["goods/goods"].find(good => good.id === route.params.id);
   } else {
-    good.value = await store.dispatch('goods/getGood', route.params.id);
+    try {
+      good.value = await store.dispatch("goods/getGood", route.params.id);
+    } catch (e) {}
   }
 
-  const getGoodFromCart = store.getters['cart/cart'] ? store.getters['cart/cart'][route.params.id] : null;
+  const getGoodFromCart = store.getters["cart/cart"] ? store.getters["cart/cart"][route.params.id] : null;
   if (getGoodFromCart) {
     count.value = getGoodFromCart;
     isAddToCart.value = true;
   }
 
   if (!store.getters.categories) {
-    await store.dispatch('categories/getCategories');
-    categories.value = store.getters['categories/categories'];
-  } else {
-    categories.value = store.getters['categories/categories'];
+    try {
+      await store.dispatch("categories/getCategories");
+    } catch (e) {}
   }
   isLoading.value = false;
 })

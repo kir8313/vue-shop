@@ -2,11 +2,12 @@
   <app-loader
     v-if="isLoading"
   />
+  <h1 v-else-if="cartModel && !selectedGoods">Товары не найдены!</h1>
   <section v-else>
     <div class="container">
       <div class="basket">
         <h1>Корзина</h1>
-        <h2 v-if="!store.getters['cart/cartLength']" class="text-center">В корзине пока ничего нет</h2>
+        <h2 v-if="!store.getters['cart/cartLength']" class="text-center">Пока ничего нет</h2>
         <div v-else>
           <div class="basket__inner text-center">
             <cart-good
@@ -27,14 +28,14 @@
           <div v-else>
             <h3 class="text-center mb-2">Для покупки авторизуйтесь</h3>
             <auth
-              v-if="showForm === 'auth'"
+              v-if="isAuthWindow"
               :is-cart="true"
-              @onShowForm="showForm = 'register'"
+              @onShowForm="changeAuthWindow"
             />
             <register
-              v-else-if="showForm === 'register'"
+              v-else
               :is-cart="true"
-              @onShowForm="showForm = 'auth'"
+              @onShowForm="changeAuthWindow"
             />
           </div>
         </div>
@@ -51,16 +52,19 @@ import Auth from "@/views/Auth";
 import Register from "@/views/Register";
 import AppLoader from "@/components/app/AppLoader";
 import {pay} from "@/utils/pay";
+import showError from "@/use/showError";
 
-const showForm = ref('auth')
+const isAuthWindow = ref(true);
 const store = useStore();
-const user = computed(() => store.getters['auth/user']);
-const cartModel = computed(() => store.getters['cart/cart']);
-const selectedGoods = computed(() => store.getters['goods/selectedGoods']);
+const user = computed(() => store.getters["auth/user"]);
+const cartModel = computed(() => store.getters["cart/cart"]);
+const selectedGoods = computed(() => store.getters["goods/selectedGoods"]);
 const isLoading = ref(true);
-const $alert = inject('$alert');
+const $alert = inject("$alert");
 const isShowPopup = ref(false);
 const prompt = ref(false);
+
+showError();
 
 const sumPrices = computed(() => {
   if (selectedGoods.value && cartModel.value) {
@@ -68,14 +72,16 @@ const sumPrices = computed(() => {
   } else {
     return 0;
   }
-})
+});
 
 onMounted(async () => {
   if (cartModel.value) {
-    await store.dispatch('goods/getFilterGoods', cartModel.value);
+    try {
+      await store.dispatch("goods/getFilterGoods", cartModel.value);
+    } catch (e) {}
   }
   isLoading.value = false;
-})
+});
 
 const onClosePopup = (value) => {
   if (!value) {
@@ -83,28 +89,30 @@ const onClosePopup = (value) => {
   } else {
     isShowPopup.value = false;
   }
-}
+};
+
+const changeAuthWindow = () => isAuthWindow.value = !isAuthWindow.value;
 
 const onPay = async () => {
-  if (store.getters['auth/isAuthenticated']) {
+  if (store.getters["auth/isAuthenticated"]) {
     try {
       await pay({
-        description: 'Покупка товаров в онлайн магазине',
+        description: "Покупка товаров в онлайн магазине",
         amount: sumPrices.value,
         accountId: user.value.email,
       })
-      await store.dispatch('order/pushOrder', {
+      await store.dispatch("order/pushOrder", {
         time: new Date().toLocaleString(),
         userId: user.value.id,
         sumPrices: sumPrices.value,
         list: []
       })
-      $alert('Покупка прошла успешно!');
+      $alert("Покупка прошла успешно!");
     } catch (e) {
-      console.log('Отмена платежа: ', e)
+      console.log("Отмена платежа", e);
     }
   } else {
-    await store.dispatch('auth/logout');
+    await store.dispatch("auth/logout");
   }
 }
 </script>
@@ -116,15 +124,26 @@ const onPay = async () => {
 
 .basket {
   background: #fff;
-  padding: 20px;
+  padding: 20px 15px;
   border-radius: 20px;
   color: var(--dark);
 }
 
 .basket__inner {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 0.5fr 1fr 0.5fr;
+  row-gap: 10px;
   align-items: center;
+}
+
+
+@media (min-width: 768px) {
+  .basket {
+    padding: 20px;
+  }
+  .basket__inner {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 </style>
 

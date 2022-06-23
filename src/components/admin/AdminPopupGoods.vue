@@ -4,7 +4,7 @@
       <button class="btn-close" type="button" @click="$emit('closePopup', hasChanges)"></button>
       <h1>{{ Object.keys(good).length ? 'Изменить' : 'Создать' }} товар</h1>
       <div v-if="!iError && img" class="mb-3">
-        <img class="form__img" :src="img" alt="Не верный url для картинки">
+        <img class="form__img" :src="imgUrl" alt="Не верный url для картинки">
       </div>
       <div class="form-floating mb-3">
         <input
@@ -25,6 +25,7 @@
           :class="{'is-invalid': iError}"
           type="text" id="img"
           v-model="img"
+          @change="returnUrlImg"
           @blur="iBlur"
           placeholder="Изображение"
         >
@@ -89,7 +90,7 @@ import {computed, onMounted, ref, watch, proxyRefs, reactive} from "vue";
 import {useRouter} from "vue-router";
 import * as yup from "yup";
 
-const emit = defineEmits(['closePopup']);
+const emit = defineEmits(["closePopup"]);
 const props = defineProps({
   categories: {
     required: true,
@@ -107,14 +108,14 @@ const store = useStore()
 const router = useRouter();
 const category = ref(props.categories[0].type);
 
-const {value: title, errorMessage: tError, handleBlur: tBlur} = useField('title',
+const {value: title, errorMessage: tError, handleBlur: tBlur} = useField("title",
   yup
     .string()
     .trim()
-    .required('Введите название товара')
-    .test('isUnique', 'Товар с таким названием уже существует', el => {
+    .required("Введите название товара")
+    .test("isUnique", "Товар с таким названием уже существует", el => {
       if (el && Object.keys(props.good).length === 0) {
-        for (let good of store.getters['goods/goods']) {
+        for (let good of store.getters["goods/goods"]) {
           if (good.title.toLowerCase() === el.toLowerCase()) {
             return false
           }
@@ -124,61 +125,61 @@ const {value: title, errorMessage: tError, handleBlur: tBlur} = useField('title'
     })
 )
 
-const {value: img, errorMessage: iError, handleBlur: iBlur} = useField('img',
+const {value: img, errorMessage: iError, handleBlur: iBlur} = useField("img",
   yup
-    .string('Введите путь к изображению')
-    .required('Введите путь к изображению')
-    .url('Введите корректную ссылку на картинку')
+    .string("Введите путь к изображению")
+    .url("Введите корректную ссылку на картинку")
     .trim()
-    .test('test-type', 'Введите тип картинки на конце (webp, png, jpg, jpeg)', el => {
+    .required("Введите путь к изображению")
+    .test("test-type", "Введите тип картинки на конце (webp, png, jpg, jpeg)", el => {
       if (el) {
-        const lastEl = el.split('.')[el.split('.').length - 1]
-        return ['webp', 'png', 'jpg', 'jpeg'].includes(lastEl);
+        const lastEl = el.split('.')[el.split('.').length - 1];
+        return ["webp", "png", "jpg", "jpeg"].includes(lastEl);
       }
     })
 );
 
-const {value: count, errorMessage: cError, handleBlur: cBlur} = useField('count',
+const {value: count, errorMessage: cError, handleBlur: cBlur} = useField("count",
   yup
-    .number('Поле не должно быть пустым')
-    .required('Введите количество товара')
-    .min(0, `Минимальное количество 0`)
+    .number("Поле не должно быть пустым")
+    .required("Введите количество товара")
+    .min(0, "Минимальное количество 0")
 );
 
-const {value: price, errorMessage: pError, handleBlur: pBlur} = useField('price',
+const {value: price, errorMessage: pError, handleBlur: pBlur} = useField("price",
   yup
     .number()
-    .required('Введите цену')
-    .min(1, `Цена от 1 рубля`)
+    .required("Введите цену")
+    .min(1, "Цена от 1 рубля")
 );
 
 
 const popupStatus = computed(() => {
   if (Object.keys(props.good).length) {
-    return 'Изменить';
+    return "Изменить";
   } else {
-    return 'Создать';
+    return "Создать";
   }
 })
 
 const onSubmit = handleSubmit(async (values) => {
   if (Object.keys(props.good).length) {
-    await store.dispatch('goods/putGood', {...values, id: props.good.id, "category": category.value});
+    await store.dispatch("goods/putGood", {...values, id: props.good.id, "category": category.value});
   } else {
     const good = {...values, "category": category.value};
-    await store.dispatch('goods/pushGood', good);
+    await store.dispatch("goods/pushGood", good);
   }
-  emit('closePopup');
+  emit("closePopup");
 })
 
 const deleteGood = async () => {
-  await store.dispatch('goods/deleteGood', props.good.id);
-  emit('closePopup');
+  await store.dispatch("goods/deleteGood", props.good.id);
+  emit("closePopup");
 }
 
 const closePopup = (event) => {
   if (!event.target.closest('.form')) {
-    emit('closePopup', hasChanges.value)
+    emit("closePopup", hasChanges.value)
   }
 }
 
@@ -203,17 +204,21 @@ watch([count, price], ([cVal, pVal]) => {
 onMounted(() => {
   if (Object.keys(props.good).length) {
     const {good} = props;
-    title.value = good.title
-    img.value = good.img
-    count.value = good.count
-    price.value = good.price
+    title.value = good.title;
+    img.value = good.img;
+    count.value = good.count;
+    price.value = good.price;
     category.value = good.category;
+
+    imgUrl.value = good.img;
   }
 })
+
+const imgUrl = ref(null);
+const returnUrlImg = (e) => imgUrl.value = e.target.value;
 </script>
 
 <style scoped lang="scss">
-
 .form__img {
   max-width: 150px;
 }

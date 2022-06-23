@@ -13,7 +13,7 @@
       <button v-else class="btn btn-danger btn_sum" @click="decrement">
         -
       </button>
-      <span class="count">{{ countGoods }} шт.</span>
+      <span class="count">{{ countGoods }} кг</span>
       <button
         :disabled="countGoods >= allCount"
         class="btn btn-primary btn_sum"
@@ -25,7 +25,7 @@
         v-if="countGoods >= allCount"
         class="limit"
       >
-        Максимальное количество товара: {{ allCount }}
+        Лимит: {{ allCount }}
       </p>
     </div>
     <div>{{ sum }} руб.</div>
@@ -47,26 +47,26 @@ const props = defineProps({
   },
 })
 const {id, img: imgSrc, count: allCount, title, price} = props.good;
-const emit = defineEmits(['deleteGood']);
+const emit = defineEmits(["deleteGood"]);
 const store = useStore();
 
 const countGoods = ref(props.count);
 
 const decrement = () => {
   countGoods.value--;
-  store.commit('cart/changeGoodCountInCart', {type: 'decrement', id});
+  store.commit("cart/changeGoodCountInCart", {type: "decrement", id});
 };
 
 const increment = () => {
   if (countGoods.value < allCount) {
     countGoods.value++;
-    store.commit('cart/changeGoodCountInCart', {type: 'increment', id});
+    store.commit("cart/changeGoodCountInCart", {type: "increment", id});
   }
 };
 
 const deleteGood = () => {
-  store.commit('goods/deleteSelectedGoods', id);
-  store.commit('cart/deleteGoodFromCart', id);
+  store.commit("goods/deleteSelectedGoods", id);
+  store.commit("cart/deleteGoodFromCart", id);
 }
 
 const sum = computed(() => countGoods.value * price);
@@ -74,6 +74,16 @@ const sum = computed(() => countGoods.value * price);
 const isDecrement = computed(() => countGoods.value <= 1);
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 
+.good__img {
+  max-width: 50px;
+}
+
+@media (min-width: 768px) {
+  .good__img {
+    max-width: 100px;
+    margin-right: 1rem;
+  }
+}
 </style>

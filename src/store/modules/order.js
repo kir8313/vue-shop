@@ -4,8 +4,8 @@ export default {
   namespaced: true,
   actions: {
     async pushOrder({commit, rootGetters}, order) {
-      const cart = rootGetters['cart/cart'];
-      const goods = rootGetters['goods/goods'];
+      const cart = rootGetters["cart/cart"];
+      const goods = rootGetters["goods/goods"];
 
       for (const [key, value] of Object.entries(cart)) {
         const good = goods.find(g => g.id === key);
@@ -16,12 +16,12 @@ export default {
         };
         const count = good.count - value;
         order.list.push(toOrder);
-        commit('goods/updateGoodCount', {id: key, count}, {root: true});
-        await baseAxios.patch(`/goods/${key}.json`, {count});
+        commit("goods/updateGoodCount", {id: key, count}, {root: true});
+        await baseAxios.patch(`/products/${key}.json`, {count});
       }
 
-      commit('cart/clearCart', null, {root: true});
-      await baseAxios.post('/orders.json', order);
+      commit("cart/clearCart", null, {root: true});
+      await baseAxios.post("/orders.json", order);
     }
   },
 }

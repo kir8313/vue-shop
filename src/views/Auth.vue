@@ -37,33 +37,36 @@
 </template>
 
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from "vuex"
 import {useField, useForm} from "vee-validate";
-import {computed, inject, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch, inject} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import * as yup from "yup";
 import alerts from "@/utils/alerts";
+import showError from "@/use/showError";
 
 const {handleSubmit, isSubmitting, submitCount} = useForm();
-const store = useStore()
+const store = useStore();
 const TIMER = 10;
 const timerCount = ref(TIMER);
 const router = useRouter();
 const route = useRoute();
 let SetTimer;
-const $error = inject('$error');
+const $error = inject("$error");
+
+showError();
 
 const props = defineProps({
   isCart: Boolean,
 })
 
-const emit = defineEmits(['onShowForm']);
+const emit = defineEmits(["onShowForm"]);
 
 const onRegister = () => {
   if (props.isCart) {
-    emit('onShowForm');
+    emit("onShowForm");
   } else {
-    router.push('/register')
+    router.push("/register");
   }
 }
 
@@ -73,28 +76,22 @@ onMounted(() => {
   }
 })
 
-const error = computed(() => {
-  return store.getters.error;
-})
-
-watch(error, fbError => {
-  $error(alerts[fbError.code] || `Неожиданная ошибка (${fbError.code})`)
-})
-
-const {value: email, errorMessage: eError, handleBlur: eBlur} = useField('email',
+const {value: email, errorMessage: eError, handleBlur: eBlur} = useField("email",
   yup
     .string()
     .trim()
     .required('Введите email')
-    .email('Введите корректный email'));
+    .email('Введите корректный email')
+);
 
 const PASSWORD_LENGTH = 6;
-const {value: password, errorMessage: pError, handleBlur: pBlur} = useField('password',
+const {value: password, errorMessage: pError, handleBlur: pBlur} = useField("password",
   yup
     .string()
     .trim()
     .required("Введите пароль")
-    .min(PASSWORD_LENGTH, `Пароль должен содержать от ${PASSWORD_LENGTH} символов`));
+    .min(PASSWORD_LENGTH, `Пароль должен содержать от ${PASSWORD_LENGTH} символов`)
+);
 
 const validSession = computed(() => submitCount.value >= 3);
 watch(validSession, val => {
@@ -111,9 +108,9 @@ watch(validSession, val => {
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await store.dispatch('auth/login', values);
+    await store.dispatch("auth/login", values);
     if (!props.isCart) {
-      await router.push('/admin/goods');
+      await router.push("/admin/goods");
     }
   } catch (e) {}
 })
