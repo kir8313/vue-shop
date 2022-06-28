@@ -57,8 +57,8 @@ import {onMounted, ref, computed} from "vue";
 import {useRoute} from "vue-router";
 import {useStore} from "vuex";
 import AppLoader from "@/components/app/AppLoader";
-import findTitleFromCategory from "@/use/findTitleFromCategory";
-import isHaveGoodCount from "@/use/isHaveGoodCount";
+import findTitleFromCategory from "@/helpers/findTitleFromCategory";
+import isHaveGoodCount from "@/helpers/isHaveGoodCount";
 import showError from "@/use/showError";
 
 const store = useStore();

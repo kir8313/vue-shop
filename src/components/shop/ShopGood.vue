@@ -51,7 +51,7 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import {useStore} from "vuex";
-import isHaveGoodCount from "@/use/isHaveGoodCount";
+import isHaveGoodCount from "@/helpers/isHaveGoodCount";
 
 const props = defineProps({
   good: {

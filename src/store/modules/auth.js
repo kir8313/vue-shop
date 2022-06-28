@@ -67,7 +67,7 @@ export default {
       try {
         const {_tokenResponse} = await signInWithEmailAndPassword(authFirebase, email, password);
         commit("changeToken", _tokenResponse);
-        dispatch("getUser", _tokenResponse.localId);
+        await dispatch("getUser", _tokenResponse.localId);
       } catch (e) {
         commit("changeError", e, {root: true});
         throw e;

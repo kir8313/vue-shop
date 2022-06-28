@@ -56,7 +56,7 @@
 <script setup>
 import {computed, onMounted, ref, watch} from "vue";
 import {useStore} from "vuex";
-import findTitleFromCategory from "@/use/findTitleFromCategory";
+import findTitleFromCategory from "@/helpers/findTitleFromCategory";
 import AdminPopupGoods from "@/components/admin/AdminPopupGoods";
 import AppPrompt from "@/components/app/AppPrompt";
 import AppPaginate from "@/components/app/AppPaginate";
