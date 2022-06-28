@@ -218,7 +218,16 @@ const imgUrl = ref(null);
 const returnUrlImg = (e) => imgUrl.value = e.target.value;
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+body {
+  overflow: hidden;
+}
+
+.bg {
+  overflow-y: auto;
+  padding-bottom: 50px;
+}
+
 .form__img {
   max-width: 150px;
 }

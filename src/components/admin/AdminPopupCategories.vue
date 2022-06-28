@@ -145,3 +145,14 @@ onMounted(() => {
   }
 })
 </script>
+
+<style>
+body {
+  overflow: hidden;
+}
+
+.bg {
+  overflow-y: auto;
+  padding-bottom: 50px;
+}
+</style>
