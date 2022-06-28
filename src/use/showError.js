@@ -13,4 +13,6 @@ export default function showError() {
   watch(error, fbError => {
     $error(alerts[fbError.code] || `Неожиданная ошибка (${fbError.code})`)
   })
+
+  return $error;
 }

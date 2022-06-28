@@ -1,6 +1,6 @@
 <template>
   <form class="form" @submit.prevent="onSubmit">
-    <h1 v-if="!isCart" class="text-black">Регистрация</h1>
+    <h1 class="text-black">Регистрация</h1>
     <div class="form-floating mb-3">
       <input
         class="form-control"
@@ -39,7 +39,7 @@
     </div>
     <div class="mb-3 text-black">
       Уже есть аккаунт?
-      <a href="/auth" class="form__link" @click.prevent="onAuth">Войти</a>
+      <router-link to="/auth" class="form__link">Войти</router-link>
     </div>
     <button class="btn btn-primary" type="submit" :disabled="isSubmitting || isValidSession">Создать</button>
     <p class="text-danger" v-if="isValidSession">
@@ -64,20 +64,6 @@ const router = useRouter();
 let SetTimer;
 
 showError();
-
-const props = defineProps({
-  isCart: Boolean,
-})
-
-const emit = defineEmits(["onShowForm"]);
-
-const onAuth = () => {
-  if (props.isCart) {
-    emit("onShowForm");
-  } else {
-    router.push("/auth");
-  }
-}
 
 const {value: name, errorMessage: nError, handleBlur: nBlur} = useField("name",
   yup
@@ -119,8 +105,10 @@ watch(isValidSession, val => {
 const onSubmit = handleSubmit(async (values) => {
   try {
     await store.dispatch("auth/register", values);
-    if (!props.isCart) {
-      await router.push("/");
+    if (store.getters['auth/isAdmin']) {
+      await router.push("/admin/goods");
+    } else {
+      await router.push("/cart");
     }
   } catch (e) {}
 })

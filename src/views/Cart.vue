@@ -25,18 +25,12 @@
           >
             <button class="btn btn-primary" @click="onPay">Оплатить</button>
           </div>
-          <div v-else>
-            <h3 class="text-center mb-2">Для покупки авторизуйтесь</h3>
-            <auth
-              v-if="isAuthWindow"
-              :is-cart="true"
-              @onShowForm="changeAuthWindow"
-            />
-            <register
-              v-else
-              :is-cart="true"
-              @onShowForm="changeAuthWindow"
-            />
+          <div
+            v-else
+            class="text-center"
+          >
+            <h3>Для покупки войдите в систему</h3>
+            <router-link to="/auth" class="btn btn-primary">Войти</router-link>
           </div>
         </div>
       </div>
@@ -146,4 +140,3 @@ const onPay = async () => {
   }
 }
 </style>
-
